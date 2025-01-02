@@ -19,8 +19,8 @@ class PokemonAssignmentPage extends StatefulWidget {
 }
 
 class _PokemonAssignmentPageState extends State<PokemonAssignmentPage> {
-  final PageController _pageController = PageController();
-  final Random _random = Random(); // 랜덤 인스턴스를 미리 생성
+  final Random _random = Random();
+  late PageController _pageController;
 
   Map<String, Map<String, String>> playerPokemonMap = {};
   List<String> team1 = [];
@@ -29,90 +29,108 @@ class _PokemonAssignmentPageState extends State<PokemonAssignmentPage> {
   @override
   void initState() {
     super.initState();
-    assignTeams();
-    if (widget.assignOneFromEach) {
-      assignOnePokemonFromEachCategory();
-    } else {
-      assignPokemonFromSelectedCategories();
-    }
+    _pageController = PageController(initialPage: 0);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        assignTeams();
+        if (widget.assignOneFromEach) {
+          assignOnePokemonFromEachCategory();
+        } else {
+          assignPokemonFromSelectedCategories();
+        }
+      });
+    });
   }
 
-  // 팀을 나누는 함수
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
   void assignTeams() {
     team1 = widget.players.sublist(0, 5);
     team2 = widget.players.sublist(5, 10);
   }
 
-  // 각 카테고리에서 한 마리씩 포켓몬을 배정하는 함수
   void assignOnePokemonFromEachCategory() {
     List<Map<String, String>> team1PokemonList = [];
     List<Map<String, String>> team2PokemonList = [];
 
-    // 팀1과 팀2에 대해 별도의 리스트에서 포켓몬을 선택
     for (String category in widget.selectedCategories) {
-      // 팀1을 위한 카테고리별 포켓몬 리스트
-      List<Map<String, String>> team1CategoryPokemonList = pokemonList
-          .where((pokemon) => pokemon['category'] == category)
-          .toList();
+      List<Map<String, String>> categoryPokemonList =
+      pokemonList.where((pokemon) => pokemon['category'] == category).toList();
 
-      // 팀2를 위한 카테고리별 포켓몬 리스트
-      List<Map<String, String>> team2CategoryPokemonList = pokemonList
-          .where((pokemon) => pokemon['category'] == category)
-          .toList();
-
-      if (team1CategoryPokemonList.isNotEmpty && team2CategoryPokemonList.isNotEmpty) {
-        // 팀1에 포켓몬 배정
-        final pokemonForTeam1 = _getRandomPokemon(team1CategoryPokemonList);
-        team1PokemonList.add(pokemonForTeam1);
-
-        // 팀2에도 동일한 카테고리에서 다시 랜덤 포켓몬 배정
-        final pokemonForTeam2 = _getRandomPokemon(team2CategoryPokemonList); // 중복 허용
-        team2PokemonList.add(pokemonForTeam2);
+      if (categoryPokemonList.isNotEmpty) {
+        team1PokemonList.add(_getRandomPokemon(categoryPokemonList));
+        team2PokemonList.add(_getRandomPokemon(categoryPokemonList));
       }
     }
 
-    // 1팀과 2팀에 배정
     assignToTeams(team1PokemonList, team2PokemonList);
   }
 
-  // 선택한 카테고리에서 포켓몬을 무작위로 선택하는 함수
   void assignPokemonFromSelectedCategories() {
-    // 팀1을 위한 선택된 카테고리의 포켓몬 리스트
-    List<Map<String, String>> team1FilteredPokemonList = pokemonList
+    // 선택된 카테고리의 포켓몬 필터링
+    List<Map<String, String>> filteredPokemonList = pokemonList
         .where((pokemon) => widget.selectedCategories.contains(pokemon['category']))
         .toList();
 
-    // 팀2를 위한 선택된 카테고리의 포켓몬 리스트
-    List<Map<String, String>> team2FilteredPokemonList = pokemonList
-        .where((pokemon) => widget.selectedCategories.contains(pokemon['category']))
-        .toList();
+    // 팀별 리스트 복제
+    List<Map<String, String>> team1PokemonList = List.from(filteredPokemonList);
 
-    // 1팀과 2팀에 배정
-    assignToTeams(team1FilteredPokemonList, team2FilteredPokemonList);
+    List<Map<String, String>> team2PokemonList = List.from(filteredPokemonList);
+
+    // 팀 1과 팀 2에 각각 5마리씩 랜덤 배정
+    List<Map<String, String>> team1SelectedPokemon = [];
+    List<Map<String, String>> team2SelectedPokemon = [];
+
+    for (int i = 0; i < 5; i++) {
+      Map<String, String> pokemon = _getRandomPokemon(team1PokemonList);
+      team1SelectedPokemon.add(pokemon);
+      team1PokemonList.remove(pokemon);
+      print('Filtered Pokemon Names: ${filteredPokemonList.map((pokemon) => pokemon['name']).toList()}');
+      print('team1SelectedPokemon Names: ${team1SelectedPokemon.map((pokemon) => pokemon['name']).toList()}');
+      print('team1PokemonList Names: ${team1PokemonList.map((pokemon) => pokemon['name']).toList()}\n');
+    }
+
+    for (int i = 0; i < 5; i++) {
+      Map<String, String> pokemon = _getRandomPokemon(team2PokemonList);
+      team2SelectedPokemon.add(pokemon);
+      team2PokemonList.remove(pokemon);
+      print('Filtered Pokemon Names: ${filteredPokemonList.map((pokemon) => pokemon['name']).toList()}');
+      print('team2SelectedPokemon Names: ${team2SelectedPokemon.map((pokemon) => pokemon['name']).toList()}');
+      print('team2PokemonList Names: ${team2PokemonList.map((pokemon) => pokemon['name']).toList()}\n');
+    }
+
+    assignToTeams(team1SelectedPokemon, team2SelectedPokemon);
   }
 
-  // 1팀과 2팀에 포켓몬 배정 (팀 내 중복 방지)
   void assignToTeams(List<Map<String, String>> team1PokemonList, List<Map<String, String>> team2PokemonList) {
-    // 1팀에 포켓몬 할당 (팀 내부 중복 방지)
-    team1.forEach((player) {
-      if (team1PokemonList.isNotEmpty) {
-        final pokemon = _getRandomPokemon(team1PokemonList); // 랜덤으로 포켓몬 할당
-        team1PokemonList.remove(pokemon); // 팀 1 내에서 중복 방지
-        playerPokemonMap[player] = pokemon;
-      }
-    });
+    // 팀 1의 플레이어 순서를 랜덤으로 섞음
+    team1.shuffle();
+    // 팀 2의 플레이어 순서를 랜덤으로 섞음
+    team2.shuffle();
 
-    // 2팀에 포켓몬 할당 (팀 내부 중복 방지)
-    team2.forEach((player) {
-      if (team2PokemonList.isNotEmpty) {
-        final pokemon = _getRandomPokemon(team2PokemonList); // 랜덤으로 포켓몬 할당
-        team2PokemonList.remove(pokemon); // 팀 2 내에서 중복 방지
-        playerPokemonMap[player] = pokemon;
+    // 1팀에 포켓몬 배정
+    for (int i = 0; i < team1.length; i++) {
+      if (team1PokemonList.isNotEmpty) {
+        playerPokemonMap[team1[i]] = team1PokemonList.removeAt(0);
       }
-    });
+    }
+
+    // 2팀에 포켓몬 배정
+    for (int i = 0; i < team2.length; i++) {
+      if (team2PokemonList.isNotEmpty) {
+        playerPokemonMap[team2[i]] = team2PokemonList.removeAt(0);
+      }
+    }
+
+    setState(() {});
   }
 
-  // 랜덤으로 포켓몬을 가져오는 함수 (한 번 생성한 Random 인스턴스를 재사용)
+
   Map<String, String> _getRandomPokemon(List<Map<String, String>> availablePokemonList) {
     return availablePokemonList[_random.nextInt(availablePokemonList.length)];
   }
@@ -127,34 +145,38 @@ class _PokemonAssignmentPageState extends State<PokemonAssignmentPage> {
           if (index == widget.players.length) {
             return ResultsPage(playerPokemonMap: playerPokemonMap, team1: team1, team2: team2);
           } else {
-            final player = widget.players[index];
-            final pokemon = playerPokemonMap[player];
-            final teamNumber = team1.contains(player) ? 1 : 2;
-            return buildPlayerPage(player, pokemon, teamNumber, index);
+            return buildPlayerPage(widget.players[index]);
           }
         },
       ),
     );
   }
 
-  Widget buildPlayerPage(String player, Map<String, String>? pokemon, int teamNumber, int index) {
+  Widget buildPlayerPage(String player) {
+    final pokemon = playerPokemonMap[player];
+    final teamNumber = team1.contains(player) ? 1 : 2;
+
     return Scaffold(
       appBar: AppBar(title: Text('$player의 포켓몬 (팀 $teamNumber)')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('내전 $teamNumber팀\n', style: TextStyle(fontSize: 20)),
-            Text('$player', style: TextStyle(fontSize: 30, color: Colors.green)),
-            SizedBox(height: 10),
-            Text('$player님이 플레이할 포켓몬은 ${pokemon?['name']}입니다!', style: TextStyle(fontSize: 24)),
+            Text('$player', style: TextStyle(fontSize: 28, color: Colors.green)),
             SizedBox(height: 20),
-            Image.asset(pokemon?['image'] ?? '', height: 200),
-            SizedBox(height: 20),
+            if (pokemon != null)
+              Column(
+                children: [
+                  Text('${pokemon['name']}이(가) 배정되었습니다!', style: TextStyle(fontSize: 20)),
+                  SizedBox(height: 20),
+                  Image.asset(pokemon['image'] ?? '', height: 200),
+                ],
+              ),
+            Spacer(),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                if (index > 0)
+                if (_pageController.hasClients && _pageController.page != null && _pageController.page! > 0)
                   ElevatedButton(
                     onPressed: () {
                       _pageController.previousPage(
@@ -164,16 +186,17 @@ class _PokemonAssignmentPageState extends State<PokemonAssignmentPage> {
                     },
                     child: Text('이전'),
                   ),
-                if (index < widget.players.length - 1)
-                  ElevatedButton(
-                    onPressed: () {
+                ElevatedButton(
+                  onPressed: () {
+                    if (_pageController.hasClients) {
                       _pageController.nextPage(
                         duration: Duration(milliseconds: 300),
                         curve: Curves.easeInOut,
                       );
-                    },
-                    child: Text('다음'),
-                  ),
+                    }
+                  },
+                  child: Text('다음'),
+                ),
               ],
             ),
             SizedBox(height: 20),

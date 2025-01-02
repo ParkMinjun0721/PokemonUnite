@@ -1,77 +1,51 @@
 import 'package:flutter/material.dart';
-import 'pokemon_category_page.dart'; // 카테고리 선택 페이지로 이동하기 위해 불러옴
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/player_provider.dart';
+import 'pokemon_category_page.dart';
 
-class PlayerNamePage extends StatefulWidget {
+class PlayerNamePage extends ConsumerWidget {
   @override
-  _PlayerNamePageState createState() => _PlayerNamePageState();
-}
-
-class _PlayerNamePageState extends State<PlayerNamePage> {
-  List<String> players = List.filled(10, ''); // 10명의 플레이어 이름 저장
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final players = ref.watch(playerProvider);
     return Scaffold(
       appBar: AppBar(title: Text('플레이어 이름 입력')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: SingleChildScrollView(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            // 왼쪽에 1팀의 이름을 입력하는 컬럼
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: List.generate(5, (index) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: TextField(
-                      onChanged: (value) {
-                        setState(() {
-                          players[index] = value; // 1팀 플레이어 이름 입력
-                        });
-                      },
-                      decoration: InputDecoration(
-                        hintText: '1팀 참가자 ${index + 1} 이름 입력',
-                        border: OutlineInputBorder(),
+            for (int team = 0; team < 2; team++)
+              Expanded(
+                child: Column(
+                  children: List.generate(5, (index) {
+                    int playerIndex = team * 5 + index;
+                    return Padding(
+                      padding: const EdgeInsets.fromLTRB(8,8,8,8),
+                      child: TextField(
+                        onChanged: (value) =>
+                            ref.read(playerProvider.notifier).updatePlayer(playerIndex, value),
+                        decoration: InputDecoration(
+                          hintText: '${team + 1}팀 참가자 ${index + 1} 이름 입력',
+                          border: OutlineInputBorder(),
+                        ),
                       ),
-                    ),
-                  );
-                }),
+                    );
+                  }),
+                ),
               ),
-            ),
-            SizedBox(width: 20), // 좌우 간격
-            // 오른쪽에 2팀의 이름을 입력하는 컬럼
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: List.generate(5, (index) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: TextField(
-                      onChanged: (value) {
-                        setState(() {
-                          players[index + 5] = value; // 2팀 플레이어 이름 입력
-                        });
-                      },
-                      decoration: InputDecoration(
-                        hintText: '2팀 참가자 ${index + 1} 이름 입력',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  );
-                }),
-              ),
-            ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: players.every((name) => name.isNotEmpty) ? () {
-          Navigator.push(context, MaterialPageRoute(
-              builder: (context) => PokemonCategoryPage(players: players)
-          ));
-        } : null,
+        onPressed: players.every((name) => name.isNotEmpty)
+            ? () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => PokemonCategoryPage(players: players),
+            ),
+          );
+        }
+            : null,
         child: Icon(Icons.navigate_next),
       ),
     );

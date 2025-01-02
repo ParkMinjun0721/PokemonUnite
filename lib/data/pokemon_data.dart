@@ -1,4 +1,3 @@
-
 List<Map<String, String>> pokemonList = [
   {'name': '앱솔', 'image': 'images/absol.png', 'category': '스피드형'},
   {'name': '에이스번', 'image': 'images/aceburn.png', 'category': '어택형'},

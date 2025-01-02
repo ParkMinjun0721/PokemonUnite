@@ -39,6 +39,9 @@ dependencies:
   firebase_auth: ^5.1.2
   cloud_firestore: ^5.1.0
   firebase_storage: ^12.1.1
+  flutter_riverpod: ^2.6.1
+  http: ^1.2.2
+  flutter_dotenv: ^5.2.1 # 환경 변수 처리
 
 dev_dependencies:
   flutter_test:
@@ -64,79 +67,8 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - images/suzy3.jpeg
-    - images/absol.png
-    - images/aceburn.png
-    - images/Armarouge.png
-    - images/Blaziken.png
-    - images/Buzzwole.png
-    - images/Ceruledge.png
-    - images/Chandelure.png
-    - images/Charizard.png
-    - images/happynurse.png
-    - images/kilga.png
-    - images/marill.png
-    - images/Rna.png
-    - images/turtleking.png
-    - images/7colorbird.png
-    - images/7colorbird.png
-    - images/100som.png
-    - images/Armpell.png
-    - images/blanky.png
-    - images/Blaziken.png
-    - images/Daerot.png
-    - images/Dodrio.png
-    - images/Dragapult.png
-    - images/Dragonite.png
-    - images/Duraludon.png
-    - images/evee.png
-    - images/Falinks.png
-    - images/fireo.png
-    - images/gardian.png
-    - images/Gengar.png
-    - images/GGamggami.png
-    - images/Glaceon.png
-    - images/Gyarados.png
-    - images/Hanka.png
-    - images/Hoopa.png
-    - images/Inteleon.png
-    - images/jammanbo.png
-    - images/Lapras.png
-    - images/Leafeon.png
-    - images/Lucario.png
-    - images/Mafoxy.png
-    - images/magiras.png
-    - images/Mamos.png
-    - images/Meowscara.png
-    - images/Metagross.png
-    - images/Mew.png
-    - images/MewtwoX.png
-    - images/MewtwoY.png
-    - images/Migg.png
-    - images/Miraidon.png
-    - images/Moke.png
-    - images/MrMime.png
-    - images/musclemon.png
-    - images/Ninja.png
-    - images/Pikachu.png
-    - images/pixy.png
-    - images/pukkrin.png
-    - images/QRring.png
-    - images/queen.png
-    - images/Scizor.png
-    - images/strangeflower.png
-    - images/Sylveon.png
-    - images/ttaraqyu.png
-    - images/uraos.png
-    - images/Uzi.png
-    - images/yadoran.png
-    - images/Yosing.png
-    - images/Zacian.png
-    - images/Zeraora.png
-    - images/Zoroark.png
-    - images/t_Square_Darkrai.png
-    - images/t_Square_Tinkaton.png
-  #   - images/a_dot_ham.jpeg
+    - images/
+
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

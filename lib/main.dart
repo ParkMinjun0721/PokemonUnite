@@ -1,37 +1,35 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:pokemonbattle/home.dart';
-
+import 'package:pokemonbattle/theme/app_theme.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
     WidgetsFlutterBinding.ensureInitialized();
+    await dotenv.load(); // .env 파일 로드
+
     await Firebase.initializeApp(
-        options: FirebaseOptions(
-          apiKey: 'AIzaSyCH6czBKZhaGWMM_Rc7H0FjJIYi1vFVDFI',
-          authDomain: 'pokemonunite-e97fa.firebaseapp.com',
-          projectId: 'pokemonunite-e97fa',
-          storageBucket: 'pokemonunite-e97fa.appspot.com',
-          messagingSenderId: '871843847800',
-          appId: '1:871843847800:web:974b66fb5a40842458978d',
-        )
+      options: FirebaseOptions(
+        apiKey: dotenv.env['API_KEY'] ?? '',
+        authDomain: dotenv.env['AUTH_DOMAIN'] ?? '',
+        projectId: dotenv.env['PROJECT_ID'] ?? '',
+        storageBucket: dotenv.env['STORAGE_BUCKET'] ?? '',
+        messagingSenderId: dotenv.env['MESSAGING_SENDER_ID'] ?? '',
+        appId: dotenv.env['APP_ID'] ?? '',
+      ),
     );
-    runApp(MyApp());
+
+    runApp(ProviderScope(child: MyApp()));
 }
 
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: '포켓몬유나이트 내전 프로그램(냥발 최고)',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
-      ),
+      title: '포켓몬 유나이트 내전 프로그램',
+      theme: AppTheme.lightTheme,
       home: HomePage(),
     );
   }
