@@ -41,7 +41,7 @@ git pull origin master
 
 ## Web Hosting
 
-flutter clean
-flutter pub get
-flutter build web
-firebase deploy
+flutter clean  
+flutter pub get  
+flutter build web  
+firebase deploy  
