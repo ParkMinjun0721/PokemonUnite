@@ -3,8 +3,7 @@
 포켓몬유나이트 내전 프로그램
 서클은? 고양이발바닥
 
-# 접속 링크
-[웹버전 접속 링크](https://pokemonunite-e97fa.firebaseapp.com/)
+[웹버전 접속 링크](https://pokemonunite-e97fa.web.app/)
 
 # 🧰 Getting Started
 1. Make sure Git and Flutter is installed.
@@ -22,7 +21,7 @@ APP_ID=1:XXXXXXXXXXXXX:web:XXXXXXXXXXXXXX
 </code>
 </pre>
 
----
+## Git 관리
 
 git add .
 
@@ -39,3 +38,10 @@ release : 버전 릴리즈
 merge : 병합
 
 git pull origin master
+
+## Web Hosting
+
+flutter clean
+flutter pub get
+flutter build web
+firebase deploy
