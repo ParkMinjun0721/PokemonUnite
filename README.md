@@ -3,7 +3,9 @@
 포켓몬유나이트 내전 프로그램
 서클은? 고양이발바닥
 
-[웹버전 접속 링크](https://pokemonunite-e97fa.web.app/)
+[웹버전 접속 링크](https://pokemonunite-e97fa.web.app)
+
+현재 웹 호스팅 과정 중 오류 발생 (2025.01.02)
 
 # 🧰 Getting Started
 1. Make sure Git and Flutter is installed.
