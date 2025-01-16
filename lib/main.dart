@@ -1,33 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:pokemonbattle/home.dart';
 import 'package:pokemonbattle/theme/app_theme.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
+Future<Map<String, String>> fetchEnv() async {
+  final response = await http.get(
+    Uri.parse('https://us-central1-pokemonunite-e97fa.cloudfunctions.net/getEnv'),
+  );
+
+  if (response.statusCode == 200) {
+    final data = jsonDecode(response.body) as Map<String, dynamic>;
+    return data.map((key, value) => MapEntry(key, value?.toString() ?? ''));
+  } else {
+    throw Exception('Failed to load environment variables');
+  }
+}
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // .env 파일 로드
-  await dotenv.load();
+  // 환경 변수 로드
+  final env = await fetchEnv();
 
-  // .env 파일 로드 확인
-  if (dotenv.isEveryDefined(['API_KEY', 'AUTH_DOMAIN', 'PROJECT_ID', 'STORAGE_BUCKET', 'MESSAGING_SENDER_ID', 'APP_ID'])) {
-    print('환경 변수 로드 성공:');
-    print('API_KEY: ${dotenv.env['API_KEY']}');
-    print('AUTH_DOMAIN: ${dotenv.env['AUTH_DOMAIN']}');
-  } else {
-    print('환경 변수 로드 실패. .env 파일을 확인하세요.');
-  }
-
+  // Firebase 초기화
   await Firebase.initializeApp(
     options: FirebaseOptions(
-      apiKey: dotenv.env['API_KEY'] ?? '',
-      authDomain: dotenv.env['AUTH_DOMAIN'] ?? '',
-      projectId: dotenv.env['PROJECT_ID'] ?? '',
-      storageBucket: dotenv.env['STORAGE_BUCKET'] ?? '',
-      messagingSenderId: dotenv.env['MESSAGING_SENDER_ID'] ?? '',
-      appId: dotenv.env['APP_ID'] ?? '',
+      apiKey: env['apiKey']!,
+      authDomain: env['authDomain']!,
+      projectId: env['projectId']!,
+      storageBucket: env['storageBucket']!,
+      messagingSenderId: env['messagingSenderId']!,
+      appId: env['appId']!,
     ),
   );
 

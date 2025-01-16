@@ -14,6 +14,7 @@ class PokemonAssignmentLogic {
         .toList();
   }
 
+  // 랜덤으로 뽑은 포켓몬들을 랜덤 팀원들에게 제공
   Map<String, Map<String, String>> assignPokemonToTeams({
     required List<String> team1,
     required List<String> team2,
@@ -79,23 +80,23 @@ class PokemonAssignmentLogic {
     required List<String> team2,
     required Map<String, Map<String, String>> playerPokemonMap,
   }) {
-    final filteredPokemonList = getFilteredPokemonList(selectedCategories);
-    final List<Map<String, String>> team1PokemonList = List.from(filteredPokemonList);
-    final List<Map<String, String>> team2PokemonList = List.from(filteredPokemonList);
+    final filteredPokemonList = getFilteredPokemonList(selectedCategories); // 선택 카테고리로부터 포켓몬 리스트 가져온다.
+    final List<Map<String, String>> team1PokemonList = List.from(filteredPokemonList); // 포켓몬 리스트를 team1 List로 복사
+    final List<Map<String, String>> team2PokemonList = List.from(filteredPokemonList); // 포켓몬 리스트를 team2 List로 복사
 
     final List<Map<String, String>> team1SelectedPokemon = [];
     final List<Map<String, String>> team2SelectedPokemon = [];
 
     for (int i = 0; i < 5; i++) {
-      Map<String, String> pokemon = getRandomPokemon(team1PokemonList);
-      team1SelectedPokemon.add(pokemon);
-      team1PokemonList.remove(pokemon);
+      Map<String, String> pokemon = getRandomPokemon(team1PokemonList); // team1 list에서 포켓몬 하나 pop
+      team1SelectedPokemon.add(pokemon); // pop한 포켓몬 select list에 추가
+      team1PokemonList.remove(pokemon); // pop한 포켓몬 team1 list에서 제거
     }
 
     for (int i = 0; i < 5; i++) {
-      Map<String, String> pokemon = getRandomPokemon(team2PokemonList);
-      team2SelectedPokemon.add(pokemon);
-      team2PokemonList.remove(pokemon);
+      Map<String, String> pokemon = getRandomPokemon(team2PokemonList);  // team1 list에서 포켓몬 하나 pop
+      team2SelectedPokemon.add(pokemon); // pop한 포켓몬 select list에 추가
+      team2PokemonList.remove(pokemon); // pop한 포켓몬 team1 list에서 제거
     }
 
     final resultMap = assignPokemonToTeams(

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'pokemon_assignment_logic.dart';
 import 'result_page.dart';
 
@@ -25,6 +24,8 @@ class _PokemonAssignmentPageState extends State<PokemonAssignmentPage> {
   late Map<String, Map<String, String>> playerPokemonMap;
   late List<String> team1;
   late List<String> team2;
+  final PageController _pageController = PageController();
+  int _currentPage = 0;
 
   @override
   void initState() {
@@ -65,19 +66,93 @@ class _PokemonAssignmentPageState extends State<PokemonAssignmentPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: PageView.builder(
-        itemCount: widget.players.length + 1,
-        itemBuilder: (context, index) {
-          if (index == widget.players.length) {
-            return ResultsPage(
-              playerPokemonMap: playerPokemonMap,
-              team1: team1,
-              team2: team2,
-            );
-          } else {
-            return buildPlayerPage(widget.players[index]);
-          }
-        },
+      appBar: AppBar(title: Text('포켓몬 할당')),
+      body: Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: 400, // 본문 내용을 400px로 제한
+          ),
+          child: Column(
+            children: [
+              Expanded(
+                child: PageView.builder(
+                  controller: _pageController,
+                  itemCount: widget.players.length + 1,
+                  onPageChanged: (index) {
+                    setState(() {
+                      _currentPage = index;
+                    });
+                  },
+                  itemBuilder: (context, index) {
+                    if (index == widget.players.length) {
+                      return ResultsPage(
+                        playerPokemonMap: playerPokemonMap,
+                        team1: team1,
+                        team2: team2,
+                      );
+                    } else {
+                      return buildPlayerPage(widget.players[index]);
+                    }
+                  },
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: SizedBox(
+                      width: 120, // 버튼 너비를 고정
+                      height: 50, // 버튼 높이를 고정
+                      child: ElevatedButton(
+                        onPressed: _currentPage > 0
+                            ? () {
+                          _pageController.jumpToPage(_currentPage - 1);
+                        }
+                            : null,
+                        style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10), // 둥근 모서리
+                          ),
+                          textStyle: TextStyle(
+                            fontSize: 16, // 텍스트 크기
+                            fontWeight: FontWeight.bold, // 텍스트 굵기
+                          ),
+                        ),
+                        child: Text('이전'),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: SizedBox(
+                      width: 120, // 버튼 너비를 고정
+                      height: 50, // 버튼 높이를 고정
+                      child: ElevatedButton(
+                        onPressed: _currentPage < widget.players.length
+                            ? () {
+                          _pageController.jumpToPage(_currentPage + 1);
+                        }
+                            : null,
+                        style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10), // 둥근 모서리
+                          ),
+                          textStyle: TextStyle(
+                            fontSize: 16, // 텍스트 크기
+                            fontWeight: FontWeight.bold, // 텍스트 굵기
+                          ),
+                        ),
+                        child: Text('다음'),
+                      ),
+                    ),
+                  )
+
+                ],
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -86,22 +161,19 @@ class _PokemonAssignmentPageState extends State<PokemonAssignmentPage> {
     final pokemon = playerPokemonMap[player];
     final teamNumber = team1.contains(player) ? 1 : 2;
 
-    return Scaffold(
-      appBar: AppBar(title: Text('$player의 포켓몬 (팀 $teamNumber)')),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('$player', style: TextStyle(fontSize: 28, color: Colors.green)),
-            if (pokemon != null)
-              Column(
-                children: [
-                  Text('${pokemon['name']}이(가) 배정되었습니다!', style: TextStyle(fontSize: 20)),
-                  Image.asset(pokemon['image'] ?? '', height: 200),
-                ],
-              ),
-          ],
-        ),
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text('$player', style: TextStyle(fontSize: 28, color: Colors.green)),
+          if (pokemon != null)
+            Column(
+              children: [
+                Text('${pokemon['name']}이(가) 배정되었습니다!', style: TextStyle(fontSize: 20)),
+                Image.asset(pokemon['image'] ?? '', height: 200),
+              ],
+            ),
+        ],
       ),
     );
   }

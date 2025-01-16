@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pokemonbattle/pokemon/playername.dart';
-import 'package:pokemonbattle/pokemon/pokemonassign.dart';
 import 'package:pokemonbattle/team/teamassign.dart';
-import 'pokemon/pokemon_category_page.dart';
 
 class HomePage extends StatelessWidget {
   @override
@@ -19,15 +17,17 @@ class HomePage extends StatelessWidget {
             ),
             SizedBox(height: 15,),
             Container(
-                child: Text('큰 화면으로 볼 시 불편할 수 있습니다.\n'
+                child: const SelectableText('모바일 기준으로 제작했습니다.\n'
                     '핸드폰 정도의 화면 비율로 바꾸시면 쾌적하게 이용하실 수 있습니다.\n'
-                    'Made by 님블\n')
+                    'Made by 님블\n'
+                    '오류/문의 : pmjunasd@gmail.com'
+                )
             ),
             SizedBox(height: 15,),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                GestureDetector(
+                InkWell(
                   onTap: () {
                     Navigator.push(context, MaterialPageRoute(builder: (context) => TeamAssignmentPage()));
                   },
@@ -35,12 +35,13 @@ class HomePage extends StatelessWidget {
                     decoration: BoxDecoration(borderRadius: BorderRadius.circular(15), color: Colors.green,),
                     width: 150,
                     height: 150,
-                    child: Center(
-                      child: const Text('팀 랜덤 배정', style: TextStyle(color: Colors.white, fontSize: 20),),
+                    child: const Center(
+                      child: Text('팀 랜덤 배정', style: TextStyle(color: Colors.white, fontSize: 20),),
                     ),
                   ),
                 ),
-                GestureDetector(
+                SizedBox(width: 100,),
+                InkWell(
                   onTap: () {
                     Navigator.push(context, MaterialPageRoute(builder: (context) => PlayerNamePage()));
                   },
@@ -48,8 +49,8 @@ class HomePage extends StatelessWidget {
                     decoration: BoxDecoration(borderRadius: BorderRadius.circular(15), color: Colors.blue,),
                     width: 150,
                     height: 150,
-                    child: Center(
-                      child: const Text('포켓몬 랜덤 선택', style: TextStyle(color: Colors.white, fontSize: 20)),
+                    child: const Center(
+                      child: Text('포켓몬 랜덤 선택', style: TextStyle(color: Colors.white, fontSize: 20)),
                     ),
                   ),
                 ),

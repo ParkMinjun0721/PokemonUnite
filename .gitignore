@@ -32,7 +32,7 @@ migrate_working_dir/
 /build/
 
 # api key
-.env
+functions/.env
 
 # Symbolication related
 app.*.symbols

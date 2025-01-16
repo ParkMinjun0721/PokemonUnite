@@ -14,37 +14,45 @@ class ResultsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('포켓몬 할당 결과')),
-      body: ListView(
-        children: [
-          Text(
-            '1팀:',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+      // appBar: AppBar(title: Text('포켓몬 할당 결과')),
+      body: Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: 400, // 화면 크기를 400px로 제한
           ),
-          ...team1.map((player) {
-            final pokemon = playerPokemonMap[player];
-            return ListTile(
-              title: Text('$player: ${pokemon?['name']}'),
-              leading: pokemon?['image'] != null
-                  ? Image.asset(pokemon?['image'] ?? '')
-                  : null,
-            );
-          }).toList(),
-          SizedBox(height: 20),
-          Text(
-            '2팀:',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          child: ListView(
+            padding: const EdgeInsets.all(16.0),
+            children: [
+              Text(
+                '1팀:',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              ),
+              ...team1.map((player) {
+                final pokemon = playerPokemonMap[player];
+                return ListTile(
+                  title: Text('$player: ${pokemon?['name']}'),
+                  leading: pokemon?['image'] != null
+                      ? Image.asset(pokemon?['image'] ?? '', width: 50, height: 50)
+                      : null,
+                );
+              }).toList(),
+              SizedBox(height: 20),
+              Text(
+                '2팀:',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              ),
+              ...team2.map((player) {
+                final pokemon = playerPokemonMap[player];
+                return ListTile(
+                  title: Text('$player: ${pokemon?['name']}'),
+                  leading: pokemon?['image'] != null
+                      ? Image.asset(pokemon?['image'] ?? '', width: 50, height: 50)
+                      : null,
+                );
+              }).toList(),
+            ],
           ),
-          ...team2.map((player) {
-            final pokemon = playerPokemonMap[player];
-            return ListTile(
-              title: Text('$player: ${pokemon?['name']}'),
-              leading: pokemon?['image'] != null
-                  ? Image.asset(pokemon?['image'] ?? '')
-                  : null,
-            );
-          }).toList(),
-        ],
+        ),
       ),
     );
   }
