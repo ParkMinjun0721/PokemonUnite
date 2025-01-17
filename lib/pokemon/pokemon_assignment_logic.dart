@@ -3,6 +3,7 @@ import '../data/pokemon_data.dart';
 
 class PokemonAssignmentLogic {
   final Random _random = Random();
+  final List<String> mutuallyExclusivePokemon = ['뮤츠X', '뮤츠Y'];
 
   List<String> assignTeams(List<String> players, int teamSize) {
     return players.sublist(0, teamSize);
@@ -54,6 +55,7 @@ class PokemonAssignmentLogic {
     final List<Map<String, String>> team1PokemonList = [];
     final List<Map<String, String>> team2PokemonList = [];
 
+    // 각 카테고리에서 한 마리씩 선택
     for (String category in selectedCategories) {
       List<Map<String, String>> categoryPokemonList =
       pokemonList.where((pokemon) => pokemon['category'] == category).toList();
@@ -64,14 +66,22 @@ class PokemonAssignmentLogic {
       }
     }
 
-    final resultMap = assignPokemonToTeams(
-      team1: team1,
-      team2: team2,
-      team1PokemonList: team1PokemonList,
-      team2PokemonList: team2PokemonList,
+    // 팀별 포켓몬 선택
+    final List<Map<String, String>> team1SelectedPokemon = _selectPokemonForTeam(
+      team1PokemonList,
+      team1,
     );
 
-    playerPokemonMap.addAll(resultMap);
+    final List<Map<String, String>> team2SelectedPokemon = _selectPokemonForTeam(
+      team2PokemonList,
+      team2,
+    );
+
+    // 결과 저장
+    for (int i = 0; i < 5; i++) {
+      playerPokemonMap[team1[i]] = team1SelectedPokemon[i];
+      playerPokemonMap[team2[i]] = team2SelectedPokemon[i];
+    }
   }
 
   void assignPokemonFromSelectedCategories({
@@ -80,33 +90,29 @@ class PokemonAssignmentLogic {
     required List<String> team2,
     required Map<String, Map<String, String>> playerPokemonMap,
   }) {
-    final filteredPokemonList = getFilteredPokemonList(selectedCategories); // 선택 카테고리로부터 포켓몬 리스트 가져온다.
-    final List<Map<String, String>> team1PokemonList = List.from(filteredPokemonList); // 포켓몬 리스트를 team1 List로 복사
-    final List<Map<String, String>> team2PokemonList = List.from(filteredPokemonList); // 포켓몬 리스트를 team2 List로 복사
+    final filteredPokemonList = getFilteredPokemonList(selectedCategories);
 
-    final List<Map<String, String>> team1SelectedPokemon = [];
-    final List<Map<String, String>> team2SelectedPokemon = [];
+    // 팀별 포켓몬 리스트
+    final List<Map<String, String>> team1PokemonList = List.from(filteredPokemonList);
+    final List<Map<String, String>> team2PokemonList = List.from(filteredPokemonList);
 
-    for (int i = 0; i < 5; i++) {
-      Map<String, String> pokemon = getRandomPokemon(team1PokemonList); // team1 list에서 포켓몬 하나 pop
-      team1SelectedPokemon.add(pokemon); // pop한 포켓몬 select list에 추가
-      team1PokemonList.remove(pokemon); // pop한 포켓몬 team1 list에서 제거
-    }
-
-    for (int i = 0; i < 5; i++) {
-      Map<String, String> pokemon = getRandomPokemon(team2PokemonList);  // team1 list에서 포켓몬 하나 pop
-      team2SelectedPokemon.add(pokemon); // pop한 포켓몬 select list에 추가
-      team2PokemonList.remove(pokemon); // pop한 포켓몬 team1 list에서 제거
-    }
-
-    final resultMap = assignPokemonToTeams(
-      team1: team1,
-      team2: team2,
-      team1PokemonList: team1SelectedPokemon,
-      team2PokemonList: team2SelectedPokemon,
+    // 팀 1 포켓몬 할당
+    final List<Map<String, String>> team1SelectedPokemon = _selectPokemonForTeam(
+      team1PokemonList,
+      team1,
     );
 
-    playerPokemonMap.addAll(resultMap);
+    // 팀 2 포켓몬 할당
+    final List<Map<String, String>> team2SelectedPokemon = _selectPokemonForTeam(
+      team2PokemonList,
+      team2,
+    );
+
+    // 결과 저장
+    for (int i = 0; i < 5; i++) {
+      playerPokemonMap[team1[i]] = team1SelectedPokemon[i];
+      playerPokemonMap[team2[i]] = team2SelectedPokemon[i];
+    }
   }
 
   void assignPreferredPokemon({
@@ -119,31 +125,78 @@ class PokemonAssignmentLogic {
         .where((pokemon) => preferredPokemon.contains(pokemon['name']))
         .toList();
 
+    // 팀별 포켓몬 리스트
     final List<Map<String, String>> team1PokemonList = List.from(filteredPokemonList);
     final List<Map<String, String>> team2PokemonList = List.from(filteredPokemonList);
 
-    final List<Map<String, String>> team1SelectedPokemon = [];
-    final List<Map<String, String>> team2SelectedPokemon = [];
-
-    for (int i = 0; i < 5; i++) {
-      Map<String, String> pokemon = getRandomPokemon(team1PokemonList);
-      team1SelectedPokemon.add(pokemon);
-      team1PokemonList.remove(pokemon);
-    }
-
-    for (int i = 0; i < 5; i++) {
-      Map<String, String> pokemon = getRandomPokemon(team2PokemonList);
-      team2SelectedPokemon.add(pokemon);
-      team2PokemonList.remove(pokemon);
-    }
-
-    final resultMap = assignPokemonToTeams(
-      team1: team1,
-      team2: team2,
-      team1PokemonList: List.from(team1SelectedPokemon),
-      team2PokemonList: List.from(team2SelectedPokemon),
+    // 팀별 포켓몬 선택
+    final List<Map<String, String>> team1SelectedPokemon = _selectPokemonForTeam(
+      team1PokemonList,
+      team1,
     );
 
-    playerPokemonMap.addAll(resultMap);
+    final List<Map<String, String>> team2SelectedPokemon = _selectPokemonForTeam(
+      team2PokemonList,
+      team2,
+    );
+
+    // 결과 저장
+    for (int i = 0; i < 5; i++) {
+      playerPokemonMap[team1[i]] = team1SelectedPokemon[i];
+      playerPokemonMap[team2[i]] = team2SelectedPokemon[i];
+    }
+  }
+
+  List<Map<String, String>> _selectPokemonForTeam(
+      List<Map<String, String>> availablePokemonList,
+      List<String> team,
+      ) {
+    final List<Map<String, String>> selectedPokemon = [];
+
+    // 포켓몬 5개 선택
+    for (int i = 0; i < 5; i++) {
+      final pokemon = getRandomPokemon(availablePokemonList);
+      selectedPokemon.add(pokemon);
+      availablePokemonList.remove(pokemon);
+    }
+
+    // 뮤츠 X와 뮤츠 Y가 같은 팀에 있는지 검사
+    _ensureExclusivePokemon(selectedPokemon, availablePokemonList);
+
+    return selectedPokemon;
+  }
+
+  void _ensureExclusivePokemon(
+      List<Map<String, String>> selectedPokemon,
+      List<Map<String, String>> availablePokemonList,
+      ) {
+    // 선택된 포켓몬 이름 리스트
+    final selectedNames = selectedPokemon.map((p) => p['name']).toList();
+
+    // 뮤츠 X와 뮤츠 Y가 동시에 있는지 확인
+    final hasMutualConflict = mutuallyExclusivePokemon
+        .where((name) => selectedNames.contains(name))
+        .length > 1;
+
+    if (hasMutualConflict) {
+      // 충돌이 발생한 경우
+      final conflictedPokemon = selectedPokemon.firstWhere(
+            (p) => mutuallyExclusivePokemon.contains(p['name']),
+      );
+
+      // 충돌 포켓몬 제거
+      selectedPokemon.remove(conflictedPokemon);
+
+      // 대체 포켓몬 선택
+      Map<String, String> replacement;
+      do {
+        replacement = getRandomPokemon(availablePokemonList);
+      } while (mutuallyExclusivePokemon.contains(replacement['name']));
+
+      // 대체 포켓몬 추가
+      selectedPokemon.add(replacement);
+      availablePokemonList.remove(replacement);
+    }
   }
 }
+
