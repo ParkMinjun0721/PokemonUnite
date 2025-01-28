@@ -2,20 +2,20 @@ import 'package:flutter/material.dart';
 import 'pokemon_assignment_page.dart';
 import '../data/pokemon_data.dart';
 
-class PreferredPokemonPage extends StatefulWidget {
+class ExcludePokemonPage extends StatefulWidget {
   final List<String> players;
 
-  PreferredPokemonPage({required this.players});
+  ExcludePokemonPage({required this.players});
 
   @override
-  _PreferredPokemonPageState createState() => _PreferredPokemonPageState();
+  _ExcludePokemonPageState createState() => _ExcludePokemonPageState();
 }
 
-class _PreferredPokemonPageState extends State<PreferredPokemonPage> {
-  List<String> selectedPokemon = []; // 선택된 포켓몬 리스트
+class _ExcludePokemonPageState extends State<ExcludePokemonPage> {
+  List<String> excludedPokemon = []; // 제외된 포켓몬 리스트
   String searchQuery = ''; // 검색어
 
-  // 포켓몬을 카테고리별로 분류
+  // 포켓몬을 카테고리별로 분류하고 제외된 포켓몬 필터링
   Map<String, List<String>> get categorizedPokemon {
     Map<String, List<String>> categories = {
       '어택형': [],
@@ -28,7 +28,8 @@ class _PreferredPokemonPageState extends State<PreferredPokemonPage> {
     for (var pokemon in pokemonList) {
       String category = pokemon['category']!;
       String name = pokemon['name']!;
-      if (name.toLowerCase().contains(searchQuery.toLowerCase())) {
+      if (!excludedPokemon.contains(name) &&
+          name.toLowerCase().contains(searchQuery.toLowerCase())) {
         categories[category]?.add(name);
       }
     }
@@ -39,7 +40,7 @@ class _PreferredPokemonPageState extends State<PreferredPokemonPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('선호 포켓몬 선택')),
+      appBar: AppBar(title: Text('제외할 포켓몬 선택')),
       body: Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(
@@ -79,13 +80,13 @@ class _PreferredPokemonPageState extends State<PreferredPokemonPage> {
                         children: entry.value.map((pokemonName) {
                           return FilterChip(
                             label: Text(pokemonName),
-                            selected: selectedPokemon.contains(pokemonName),
+                            selected: excludedPokemon.contains(pokemonName),
                             onSelected: (bool selected) {
                               setState(() {
                                 if (selected) {
-                                  selectedPokemon.add(pokemonName);
+                                  excludedPokemon.add(pokemonName);
                                 } else {
-                                  selectedPokemon.remove(pokemonName);
+                                  excludedPokemon.remove(pokemonName);
                                 }
                               });
                             },
@@ -95,17 +96,17 @@ class _PreferredPokemonPageState extends State<PreferredPokemonPage> {
                     }).toList(),
                   ),
                 ),
-                // 선택된 포켓몬 미리보기
+                // 제외된 포켓몬 미리보기
                 // Wrap(
                 //   spacing: 8,
                 //   runSpacing: 4,
-                //   children: selectedPokemon.map((pokemon) {
+                //   children: excludedPokemon.map((pokemon) {
                 //     return Chip(
                 //       label: Text(pokemon),
                 //       deleteIcon: Icon(Icons.close),
                 //       onDeleted: () {
                 //         setState(() {
-                //           selectedPokemon.remove(pokemon);
+                //           excludedPokemon.remove(pokemon);
                 //         });
                 //       },
                 //     );
@@ -114,21 +115,21 @@ class _PreferredPokemonPageState extends State<PreferredPokemonPage> {
                 SizedBox(height: 16),
                 // 다음 페이지로 이동 버튼
                 ElevatedButton(
-                  onPressed: selectedPokemon.isNotEmpty
+                  onPressed: excludedPokemon.isNotEmpty
                       ? () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => PokemonAssignmentPage(
                           players: widget.players,
-                          selectedCategories: [], // 카테고리 없음
-                          preferredPokemon: selectedPokemon, // 선택된 포켓몬 전달
+                          selectedCategories: [], // 선택된 카테고리 없음
+                          preferredPokemon: [], // 선호 포켓몬 없음
                         ),
                       ),
                     );
                   }
                       : null,
-                  child: Text('선호 포켓몬으로 배정'),
+                  child: Text('선호 포켓몬 배정 제외 완료'),
                 ),
                 SizedBox(height: 20),
               ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pokemonbattle/pokemon/pokemon_exclude_page.dart';
 import 'pokemon_assignment_page.dart';
 import 'preferred_pokemon_page.dart';
 
@@ -48,6 +49,8 @@ class _PokemonCategoryPageState extends State<PokemonCategoryPage> {
                     }).toList(),
                   ),
                 ),
+                SizedBox(height: 20),
+                Text("포켓몬 배정에 오류가 있으면, 새로고침 해주세요!\n가끔 오류가 납니다 :( "),
                 SizedBox(height: 20),
                 SizedBox(
                   width: double.infinity,
@@ -113,6 +116,23 @@ class _PokemonCategoryPageState extends State<PokemonCategoryPage> {
                   ),
                 ),
                 SizedBox(height: 20),
+                // SizedBox(
+                //   width: double.infinity,
+                //   height: 50,
+                //   child: ElevatedButton(
+                //     onPressed: () {
+                //       Navigator.push(
+                //         context,
+                //         MaterialPageRoute(
+                //           builder: (context) =>
+                //               ExcludePokemonPage(players: widget.players),
+                //         ),
+                //       );
+                //     },
+                //     child: Text('포켓몬 제외 배정'),
+                //   ),
+                // ),
+                // SizedBox(height: 20),
               ],
             ),
           ),

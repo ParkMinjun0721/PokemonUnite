@@ -13,7 +13,7 @@ List<Map<String, String>> pokemonList = [
   {'name': '거북왕', 'image': 'images/turtleking.png', 'category': '디펜스형'},
   {'name': '알로라 나인테일', 'image': 'images/Rna.png', 'category': '어택형'},
   {'name': '백솜모카', 'image': 'images/100som.png', 'category': '서포트형'},
-  {'name': '암펠리스', 'image': 'images/Armpell.png', 'category': '디펜스형'},
+  {'name': '암팰리스', 'image': 'images/Armpell.png', 'category': '디펜스형'},
   {'name': '블래키', 'image': 'images/blanky.png', 'category': '디펜스형'},
   {'name': '대로트', 'image': 'images/Daerot.png', 'category': '디펜스형'},
   {'name': '두트리오', 'image': 'images/Dodrio.png', 'category': '스피드형'},
@@ -63,6 +63,8 @@ List<Map<String, String>> pokemonList = [
   {'name': '조로아크', 'image': 'images/Zoroark.png', 'category': '스피드형'},
   {'name': '다크라이', 'image': 'images/t_Square_Darkrai.png', 'category': '스피드형'},
   {'name': '두드리짱', 'image': 'images/t_Square_Tinkaton.png', 'category': '밸런스형'},
+  {'name': '고라파덕', 'image': 'images/Psyduck.png', 'category': '서포트형'},
+  // {'name': '가라르 날쌩마', 'image': 'images/Rapidash.png', 'category': '스피드형'},
 
   // EX 포켓몬
   {'name': '자시안', 'image': 'images/Zacian.png', 'category': '밸런스형'},
