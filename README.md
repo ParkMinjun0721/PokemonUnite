@@ -8,6 +8,7 @@
 ~~현재 웹 호스팅 과정 중 오류 발생 (2025.01.02)~~
     -> 2025.01.04 오류 수정 완료
 
+
 # 🧰 Getting Started
 1. Make sure Git and Flutter is installed.
 2. Clone this repository to your local computer.

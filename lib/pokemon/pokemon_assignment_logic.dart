@@ -161,7 +161,8 @@ class PokemonAssignmentLogic {
     }
 
     // 뮤츠 X와 뮤츠 Y가 같은 팀에 있는지 검사
-    _ensureExclusivePokemon(selectedPokemon, availablePokemonList);
+    /// 25/10/02 UPDATE: 인게임에서 뮤츠X와 뮤츠Y가 동일한 팀에 나올 수 있게 됨에 따라, 로직 삭제.
+    // _ensureExclusivePokemon(selectedPokemon, availablePokemonList);
 
     return selectedPokemon;
   }
