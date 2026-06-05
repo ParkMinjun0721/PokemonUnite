@@ -79,6 +79,8 @@ List<Map<String, String>> pokemonList = [
   {'name': '장크로다일', 'image': 'images/t_Square_Feraligatr.webp', 'category': '밸런스형'},
   {'name': '타타륜', 'image': 'images/t_Square_Dhelmise.webp', 'category': '밸런스형'},
   {'name': '나옹', 'image': 'images/t_Square_Meowth.webp', 'category': '스피드형'},
+  {'name': '메가니움', 'image': 'images/t_Square_Meganium.webp', 'category': '서포트형'},
+  {'name': '라우드본', 'image': 'images/laudbone.webp', 'category': '어택형'},
 
   // EX 포켓몬
   {'name': '자시안', 'image': 'images/Zacian.png', 'category': '밸런스형'},
