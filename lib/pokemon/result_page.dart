@@ -5,7 +5,8 @@ class ResultsPage extends StatelessWidget {
   final List<String> team1;
   final List<String> team2;
 
-  ResultsPage({
+  const ResultsPage({
+    super.key,
     required this.playerPokemonMap,
     required this.team1,
     required this.team2,
@@ -17,13 +18,13 @@ class ResultsPage extends StatelessWidget {
       // appBar: AppBar(title: Text('포켓몬 할당 결과')),
       body: Center(
         child: ConstrainedBox(
-          constraints: BoxConstraints(
+          constraints: const BoxConstraints(
             maxWidth: 400, // 화면 크기를 400px로 제한
           ),
           child: ListView(
             padding: const EdgeInsets.all(16.0),
             children: [
-              Text(
+              const Text(
                 '1팀:',
                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
@@ -32,12 +33,16 @@ class ResultsPage extends StatelessWidget {
                 return ListTile(
                   title: Text('$player: ${pokemon?['name']}'),
                   leading: pokemon?['image'] != null
-                      ? Image.asset(pokemon?['image'] ?? '', width: 50, height: 50)
+                      ? Image.asset(
+                          pokemon?['image'] ?? '',
+                          width: 50,
+                          height: 50,
+                        )
                       : null,
                 );
-              }).toList(),
-              SizedBox(height: 20),
-              Text(
+              }),
+              const SizedBox(height: 20),
+              const Text(
                 '2팀:',
                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
@@ -46,10 +51,14 @@ class ResultsPage extends StatelessWidget {
                 return ListTile(
                   title: Text('$player: ${pokemon?['name']}'),
                   leading: pokemon?['image'] != null
-                      ? Image.asset(pokemon?['image'] ?? '', width: 50, height: 50)
+                      ? Image.asset(
+                          pokemon?['image'] ?? '',
+                          width: 50,
+                          height: 50,
+                        )
                       : null,
                 );
-              }).toList(),
+              }),
             ],
           ),
         ),

@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:pokemonbattle/pokemon/pokemon_exclude_page.dart';
 import 'pokemon_assignment_page.dart';
 import 'preferred_pokemon_page.dart';
 
 class PokemonCategoryPage extends StatefulWidget {
   final List<String> players;
 
-  PokemonCategoryPage({required this.players});
+  const PokemonCategoryPage({super.key, required this.players});
 
   @override
-  _PokemonCategoryPageState createState() => _PokemonCategoryPageState();
+  State<PokemonCategoryPage> createState() => _PokemonCategoryPageState();
 }
 
 class _PokemonCategoryPageState extends State<PokemonCategoryPage> {
@@ -24,10 +23,10 @@ class _PokemonCategoryPageState extends State<PokemonCategoryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('포켓몬 카테고리 선택')),
+      appBar: AppBar(title: const Text('포켓몬 카테고리 선택')),
       body: Center(
         child: ConstrainedBox(
-          constraints: BoxConstraints(
+          constraints: const BoxConstraints(
             maxWidth: 400, // 화면 크기를 400px로 제한
           ),
           child: Padding(
@@ -49,36 +48,36 @@ class _PokemonCategoryPageState extends State<PokemonCategoryPage> {
                     }).toList(),
                   ),
                 ),
-                SizedBox(height: 20),
-                Text("포켓몬 배정에 오류가 있으면, 새로고침 해주세요!\n가끔 오류가 납니다 :( "),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
+                const Text("포켓몬 배정에 오류가 있으면, 새로고침 해주세요!\n가끔 오류가 납니다 :( "),
+                const SizedBox(height: 20),
                 SizedBox(
                   width: double.infinity,
                   height: 50,
                   child: ElevatedButton(
                     onPressed: categories.values.contains(true)
                         ? () {
-                      List<String> selectedCategories = categories.entries
-                          .where((entry) => entry.value)
-                          .map((entry) => entry.key)
-                          .toList();
+                            List<String> selectedCategories = categories.entries
+                                .where((entry) => entry.value)
+                                .map((entry) => entry.key)
+                                .toList();
 
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => PokemonAssignmentPage(
-                            players: widget.players,
-                            selectedCategories: selectedCategories,
-                            assignOneFromEach: false,
-                          ),
-                        ),
-                      );
-                    }
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => PokemonAssignmentPage(
+                                  players: widget.players,
+                                  selectedCategories: selectedCategories,
+                                  assignOneFromEach: false,
+                                ),
+                              ),
+                            );
+                          }
                         : null,
-                    child: Text('선택된 카테고리에서 랜덤 배정'),
+                    child: const Text('선택된 카테고리에서 랜덤 배정'),
                   ),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 SizedBox(
                   width: double.infinity,
                   height: 50,
@@ -95,10 +94,10 @@ class _PokemonCategoryPageState extends State<PokemonCategoryPage> {
                         ),
                       );
                     },
-                    child: Text('각 포지션에서 한 마리씩 배정'),
+                    child: const Text('각 포지션에서 한 마리씩 배정'),
                   ),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 SizedBox(
                   width: double.infinity,
                   height: 50,
@@ -112,10 +111,10 @@ class _PokemonCategoryPageState extends State<PokemonCategoryPage> {
                         ),
                       );
                     },
-                    child: Text('선호 포켓몬 배정'),
+                    child: const Text('선호 포켓몬 배정'),
                   ),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 // SizedBox(
                 //   width: double.infinity,
                 //   height: 50,
