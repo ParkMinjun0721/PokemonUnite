@@ -6,6 +6,7 @@ class PokemonAssignmentPage extends StatefulWidget {
   final List<String> players;
   final List<String> selectedCategories;
   final List<String> preferredPokemon;
+  final List<String> excludedPokemon;
   final bool assignOneFromEach;
 
   const PokemonAssignmentPage({
@@ -13,6 +14,7 @@ class PokemonAssignmentPage extends StatefulWidget {
     required this.players,
     required this.selectedCategories,
     this.preferredPokemon = const [],
+    this.excludedPokemon = const [],
     this.assignOneFromEach = false,
   });
 
@@ -68,6 +70,7 @@ class _PokemonAssignmentPageState extends State<PokemonAssignmentPage> {
           team1: team1,
           team2: team2,
           playerPokemonMap: playerPokemonMap,
+          excludedPokemon: widget.excludedPokemon,
         );
       }
     } on PokemonAssignmentException catch (error) {

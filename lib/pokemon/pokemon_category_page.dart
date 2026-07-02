@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'pokemon_assignment_page.dart';
+import 'pokemon_exclude_page.dart';
 import 'preferred_pokemon_page.dart';
 
 class PokemonCategoryPage extends StatefulWidget {
@@ -19,6 +20,17 @@ class _PokemonCategoryPageState extends State<PokemonCategoryPage> {
     '디펜스형': false,
     '서포트형': false,
   };
+
+  List<String> get _selectedCategories {
+    final selectedCategories = categories.entries
+        .where((entry) => entry.value)
+        .map((entry) => entry.key)
+        .toList();
+
+    return selectedCategories.isEmpty
+        ? categories.keys.toList()
+        : selectedCategories;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,17 +69,12 @@ class _PokemonCategoryPageState extends State<PokemonCategoryPage> {
                   child: ElevatedButton(
                     onPressed: categories.values.contains(true)
                         ? () {
-                            List<String> selectedCategories = categories.entries
-                                .where((entry) => entry.value)
-                                .map((entry) => entry.key)
-                                .toList();
-
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => PokemonAssignmentPage(
                                   players: widget.players,
-                                  selectedCategories: selectedCategories,
+                                  selectedCategories: _selectedCategories,
                                   assignOneFromEach: false,
                                 ),
                               ),
@@ -115,23 +122,25 @@ class _PokemonCategoryPageState extends State<PokemonCategoryPage> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                // SizedBox(
-                //   width: double.infinity,
-                //   height: 50,
-                //   child: ElevatedButton(
-                //     onPressed: () {
-                //       Navigator.push(
-                //         context,
-                //         MaterialPageRoute(
-                //           builder: (context) =>
-                //               ExcludePokemonPage(players: widget.players),
-                //         ),
-                //       );
-                //     },
-                //     child: Text('포켓몬 제외 배정'),
-                //   ),
-                // ),
-                // SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: OutlinedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ExcludePokemonPage(
+                            players: widget.players,
+                            selectedCategories: _selectedCategories,
+                          ),
+                        ),
+                      );
+                    },
+                    child: const Text('제외 포켓몬 설정 후 랜덤 배정'),
+                  ),
+                ),
+                const SizedBox(height: 20),
               ],
             ),
           ),
