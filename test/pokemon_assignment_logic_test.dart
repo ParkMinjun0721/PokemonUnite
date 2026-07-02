@@ -25,6 +25,38 @@ void main() {
     );
   });
 
+  test('keeps pokemon unique within each team', () {
+    final logic = PokemonAssignmentLogic();
+    final playerPokemonMap = <String, Map<String, String>>{};
+
+    logic.assignPokemonFromSelectedCategories(
+      selectedCategories: const ['어택형', '밸런스형', '스피드형'],
+      team1: team1,
+      team2: team2,
+      playerPokemonMap: playerPokemonMap,
+    );
+
+    final team1Pokemon =
+        team1.map((player) => playerPokemonMap[player]!['name']).toList();
+    final team2Pokemon =
+        team2.map((player) => playerPokemonMap[player]!['name']).toList();
+
+    expect(team1Pokemon.toSet(), hasLength(team1.length));
+    expect(team2Pokemon.toSet(), hasLength(team2.length));
+  });
+
+  test('filters selected categories without exclusions', () {
+    final logic = PokemonAssignmentLogic();
+
+    final filteredPokemon = logic.getFilteredPokemonList(const ['스피드형']);
+
+    expect(filteredPokemon, isNotEmpty);
+    expect(
+      filteredPokemon.every((pokemon) => pokemon['category'] == '스피드형'),
+      isTrue,
+    );
+  });
+
   test('throws when exclusions leave fewer than five assignable pokemon', () {
     final logic = PokemonAssignmentLogic();
     final speedPokemon = pokemonList
