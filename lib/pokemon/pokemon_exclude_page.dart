@@ -34,6 +34,12 @@ class _ExcludePokemonPageState extends State<ExcludePokemonPage> {
   }
 
   bool get canAssign => assignablePokemonCount >= 5;
+  bool get hasExcludedPokemon => excludedPokemon.isNotEmpty;
+  String get actionLabel =>
+      hasExcludedPokemon ? '제외 목록으로 랜덤 배정' : '제외 없이 랜덤 배정';
+  String get helperText => hasExcludedPokemon
+      ? '선택한 포켓몬은 랜덤 배정 후보에서 제외됩니다.'
+      : '제외할 포켓몬이 없으면 전체 후보에서 랜덤 배정됩니다.';
 
   // 포켓몬을 카테고리별로 분류하고 검색어로 필터링
   Map<String, List<String>> get categorizedPokemon {
@@ -70,8 +76,8 @@ class _ExcludePokemonPageState extends State<ExcludePokemonPage> {
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  '선택한 포켓몬은 랜덤 배정 후보에서 제외됩니다.',
+                Text(
+                  helperText,
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 16),
@@ -89,7 +95,7 @@ class _ExcludePokemonPageState extends State<ExcludePokemonPage> {
                   },
                 ),
                 const SizedBox(height: 12),
-                if (excludedPokemon.isNotEmpty)
+                if (hasExcludedPokemon)
                   ConstrainedBox(
                     constraints: const BoxConstraints(maxHeight: 96),
                     child: SingleChildScrollView(
@@ -111,7 +117,7 @@ class _ExcludePokemonPageState extends State<ExcludePokemonPage> {
                       ),
                     ),
                   ),
-                if (excludedPokemon.isNotEmpty)
+                if (hasExcludedPokemon)
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton(
@@ -206,7 +212,7 @@ class _ExcludePokemonPageState extends State<ExcludePokemonPage> {
                             );
                           }
                         : null,
-                    child: const Text('제외 목록으로 랜덤 배정'),
+                    child: Text(actionLabel),
                   ),
                 ),
                 const SizedBox(height: 20),
