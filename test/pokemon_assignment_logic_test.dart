@@ -57,6 +57,32 @@ void main() {
     );
   });
 
+  test('assigns only from preferred pokemon candidates', () {
+    final logic = PokemonAssignmentLogic();
+    final playerPokemonMap = <String, Map<String, String>>{};
+    const preferredPokemon = [
+      '피카츄',
+      '라우드본',
+      '에이스번',
+      '샹델라',
+      '가디안',
+    ];
+
+    logic.assignPreferredPokemon(
+      preferredPokemon: preferredPokemon,
+      team1: team1,
+      team2: team2,
+      playerPokemonMap: playerPokemonMap,
+    );
+
+    expect(playerPokemonMap.length, 10);
+    expect(
+      playerPokemonMap.values
+          .every((pokemon) => preferredPokemon.contains(pokemon['name'])),
+      isTrue,
+    );
+  });
+
   test('throws when exclusions leave fewer than five assignable pokemon', () {
     final logic = PokemonAssignmentLogic();
     final speedPokemon = pokemonList
