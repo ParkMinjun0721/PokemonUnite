@@ -21,6 +21,18 @@ class _PokemonCategoryPageState extends State<PokemonCategoryPage> {
     '서포트형': false,
   };
 
+  int get _selectedCategoryCount =>
+      categories.values.where((isSelected) => isSelected).length;
+
+  bool get _hasSelectedCategories => _selectedCategoryCount > 0;
+
+  String get _selectionSummary => _hasSelectedCategories
+      ? '선택 $_selectedCategoryCount개'
+      : '선택 없음 · 전체 포지션 사용';
+
+  String get _randomAssignLabel =>
+      _hasSelectedCategories ? '선택된 카테고리에서 랜덤 배정' : '전체 카테고리에서 랜덤 배정';
+
   List<String> get _selectedCategories {
     final selectedCategories = categories.entries
         .where((entry) => entry.value)
@@ -45,6 +57,44 @@ class _PokemonCategoryPageState extends State<PokemonCategoryPage> {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
+                Text(
+                  _selectionSummary,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  '아무 포지션도 선택하지 않으면 전체 포지션에서 랜덤 배정됩니다.',
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () {
+                          setState(() {
+                            categories.updateAll((key, value) => true);
+                          });
+                        },
+                        child: const Text('전체 선택'),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: _hasSelectedCategories
+                            ? () {
+                                setState(() {
+                                  categories.updateAll((key, value) => false);
+                                });
+                              }
+                            : null,
+                        child: const Text('전체 해제'),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
                 Expanded(
                   child: ListView(
                     children: categories.keys.map((category) {
@@ -61,27 +111,23 @@ class _PokemonCategoryPageState extends State<PokemonCategoryPage> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                const Text("포켓몬 배정에 오류가 있으면, 새로고침 해주세요!\n가끔 오류가 납니다 :( "),
-                const SizedBox(height: 20),
                 SizedBox(
                   width: double.infinity,
                   height: 50,
                   child: ElevatedButton(
-                    onPressed: categories.values.contains(true)
-                        ? () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => PokemonAssignmentPage(
-                                  players: widget.players,
-                                  selectedCategories: _selectedCategories,
-                                  assignOneFromEach: false,
-                                ),
-                              ),
-                            );
-                          }
-                        : null,
-                    child: const Text('선택된 카테고리에서 랜덤 배정'),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PokemonAssignmentPage(
+                            players: widget.players,
+                            selectedCategories: _selectedCategories,
+                            assignOneFromEach: false,
+                          ),
+                        ),
+                      );
+                    },
+                    child: Text(_randomAssignLabel),
                   ),
                 ),
                 const SizedBox(height: 16),
