@@ -15,6 +15,11 @@ class _PreferredPokemonPageState extends State<PreferredPokemonPage> {
   List<String> selectedPokemon = []; // 선택된 포켓몬 리스트
   String searchQuery = ''; // 검색어
 
+  bool get canAssign => selectedPokemon.length >= 5;
+  bool get hasSelectedPokemon => selectedPokemon.isNotEmpty;
+  String get helperText =>
+      canAssign ? '선택한 포켓몬 후보 안에서 랜덤 배정됩니다.' : '선호 포켓몬은 최소 5마리 이상 선택해주세요.';
+
   // 포켓몬을 카테고리별로 분류
   Map<String, List<String>> get categorizedPokemon {
     Map<String, List<String>> categories = {
@@ -49,6 +54,19 @@ class _PreferredPokemonPageState extends State<PreferredPokemonPage> {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
+                Text(
+                  '선택 ${selectedPokemon.length}마리',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  helperText,
+                  style: canAssign
+                      ? null
+                      : const TextStyle(color: Colors.redAccent),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
                 // 검색창 추가
                 TextField(
                   decoration: const InputDecoration(
@@ -62,7 +80,42 @@ class _PreferredPokemonPageState extends State<PreferredPokemonPage> {
                     });
                   },
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
+                if (hasSelectedPokemon)
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxHeight: 96),
+                    child: SingleChildScrollView(
+                      child: Wrap(
+                        spacing: 8,
+                        runSpacing: 4,
+                        children: [
+                          ...selectedPokemon.map((pokemonName) {
+                            return InputChip(
+                              label: Text(pokemonName),
+                              onDeleted: () {
+                                setState(() {
+                                  selectedPokemon.remove(pokemonName);
+                                });
+                              },
+                            );
+                          }),
+                        ],
+                      ),
+                    ),
+                  ),
+                if (hasSelectedPokemon)
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: () {
+                        setState(() {
+                          selectedPokemon.clear();
+                        });
+                      },
+                      child: const Text('전체 해제'),
+                    ),
+                  ),
+                const SizedBox(height: 8),
                 // 카테고리별 포켓몬 리스트
                 Expanded(
                   child: ListView(
@@ -79,53 +132,66 @@ class _PreferredPokemonPageState extends State<PreferredPokemonPage> {
                           ),
                         ),
                         children: [
-                          ...entry.value.map((pokemonName) {
-                            return FilterChip(
-                              label: Text(pokemonName),
-                              selected: selectedPokemon.contains(pokemonName),
-                              onSelected: (bool selected) {
-                                setState(() {
-                                  if (selected) {
-                                    selectedPokemon.add(pokemonName);
-                                  } else {
-                                    selectedPokemon.remove(pokemonName);
-                                  }
-                                });
-                              },
-                            );
-                          }),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8.0,
+                              vertical: 4.0,
+                            ),
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Wrap(
+                                spacing: 8,
+                                runSpacing: 4,
+                                children: [
+                                  ...entry.value.map((pokemonName) {
+                                    return FilterChip(
+                                      label: Text(pokemonName),
+                                      selected: selectedPokemon.contains(
+                                        pokemonName,
+                                      ),
+                                      onSelected: (bool selected) {
+                                        setState(() {
+                                          if (selected) {
+                                            selectedPokemon.add(pokemonName);
+                                          } else {
+                                            selectedPokemon.remove(pokemonName);
+                                          }
+                                        });
+                                      },
+                                    );
+                                  }),
+                                ],
+                              ),
+                            ),
+                          ),
                         ],
                       );
                     }).toList(),
                   ),
                 ),
-                if (selectedPokemon.isNotEmpty && selectedPokemon.length < 5)
-                  const Padding(
-                    padding: EdgeInsets.only(bottom: 8.0),
-                    child: Text(
-                      '선호 포켓몬은 최소 5마리 이상 선택해주세요.',
-                      style: TextStyle(color: Colors.redAccent),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
                 // 다음 페이지로 이동 버튼
-                ElevatedButton(
-                  onPressed: selectedPokemon.length >= 5
-                      ? () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => PokemonAssignmentPage(
-                                players: widget.players,
-                                selectedCategories: const [], // 카테고리 없음
-                                preferredPokemon: selectedPokemon, // 선택된 포켓몬 전달
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: canAssign
+                        ? () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => PokemonAssignmentPage(
+                                  players: widget.players,
+                                  selectedCategories: const [], // 카테고리 없음
+                                  preferredPokemon:
+                                      selectedPokemon, // 선택된 포켓몬 전달
+                                ),
                               ),
-                            ),
-                          );
-                        }
-                      : null,
-                  child: const Text('선호 포켓몬으로 배정'),
+                            );
+                          }
+                        : null,
+                    child: const Text('선호 포켓몬으로 배정'),
+                  ),
                 ),
                 const SizedBox(height: 20),
               ],
