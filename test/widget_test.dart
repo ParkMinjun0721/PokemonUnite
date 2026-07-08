@@ -92,6 +92,42 @@ void main() {
     expect(find.text('팀 배정을 위해 중복 없는 참가자 10명이 필요합니다.'), findsOneWidget);
     expect(find.text('이전으로'), findsOneWidget);
   });
+
+  testWidgets('can reroll team assignment from result page', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      const ProviderScope(
+        child: MyAppForTest(
+          child: TeamResultPage(
+            players: [
+              'p1',
+              'p2',
+              'p3',
+              'p4',
+              'p5',
+              'p6',
+              'p7',
+              'p8',
+              'p9',
+              'p10'
+            ],
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('1팀:'), findsOneWidget);
+    expect(find.text('2팀:'), findsOneWidget);
+    expect(find.text('다시 배정'), findsOneWidget);
+    expect(find.text('입력으로 돌아가기'), findsOneWidget);
+
+    await tester.tap(find.text('다시 배정'));
+    await tester.pump();
+
+    expect(find.text('1팀:'), findsOneWidget);
+    expect(find.text('2팀:'), findsOneWidget);
+  });
 }
 
 class MyAppForTest extends StatelessWidget {
