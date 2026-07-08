@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'team_assignment_logic.dart';
 
 class TeamResultPage extends StatefulWidget {
   final List<String> players;
@@ -10,16 +11,20 @@ class TeamResultPage extends StatefulWidget {
 }
 
 class _TeamResultPageState extends State<TeamResultPage> {
-  late final List<String> team1;
-  late final List<String> team2;
+  late final TeamAssignmentLogic logic;
+  TeamAssignmentResult? result;
+  String? assignmentError;
 
   @override
   void initState() {
     super.initState();
+    logic = TeamAssignmentLogic();
 
-    final shuffledPlayers = List<String>.from(widget.players)..shuffle();
-    team1 = shuffledPlayers.sublist(0, 5);
-    team2 = shuffledPlayers.sublist(5, 10);
+    try {
+      result = logic.assignTeams(widget.players);
+    } on TeamAssignmentException catch (error) {
+      assignmentError = error.message;
+    }
   }
 
   @override
@@ -33,25 +38,59 @@ class _TeamResultPageState extends State<TeamResultPage> {
           ),
           child: Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  '1팀:',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                ),
-                ...team1.map((player) => ListTile(title: Text(player))),
-                const SizedBox(height: 20),
-                const Text(
-                  '2팀:',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                ),
-                ...team2.map((player) => ListTile(title: Text(player))),
-              ],
-            ),
+            child: assignmentError == null
+                ? _buildResultBody()
+                : _buildErrorBody(context),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildResultBody() {
+    final assignedResult = result;
+
+    if (assignedResult == null) {
+      return _buildErrorBody(context);
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          '1팀:',
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+        ),
+        ...assignedResult.team1.map((player) => ListTile(title: Text(player))),
+        const SizedBox(height: 20),
+        const Text(
+          '2팀:',
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+        ),
+        ...assignedResult.team2.map((player) => ListTile(title: Text(player))),
+      ],
+    );
+  }
+
+  Widget _buildErrorBody(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Icon(Icons.error_outline, size: 48, color: Colors.redAccent),
+        const SizedBox(height: 16),
+        Text(
+          assignmentError ?? '팀 배정에 실패했습니다.',
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 12),
+        const Text('참가자 이름을 다시 확인해주세요.', textAlign: TextAlign.center),
+        const SizedBox(height: 24),
+        ElevatedButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('이전으로'),
+        ),
+      ],
     );
   }
 }
