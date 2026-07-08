@@ -3,8 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/player_provider.dart';
 import 'pokemon_category_page.dart';
 
-class PlayerNamePage extends ConsumerWidget {
+class PlayerNamePage extends ConsumerStatefulWidget {
   const PlayerNamePage({super.key});
+
+  @override
+  ConsumerState<PlayerNamePage> createState() => _PlayerNamePageState();
+}
+
+class _PlayerNamePageState extends ConsumerState<PlayerNamePage> {
+  late final List<TextEditingController> _controllers;
 
   bool _hasValidPlayers(List<String> players) {
     final trimmedPlayers = players.map((name) => name.trim()).toList();
@@ -16,10 +23,57 @@ class PlayerNamePage extends ConsumerWidget {
     return players.map((name) => name.trim()).toList();
   }
 
+  int _enteredPlayerCount(List<String> players) {
+    return players.where((name) => name.trim().isNotEmpty).length;
+  }
+
+  bool _hasEnteredPlayers(List<String> players) {
+    return _enteredPlayerCount(players) > 0;
+  }
+
+  String _helperText(List<String> players) {
+    return _hasValidPlayers(players)
+        ? '참가자 10명이 준비되었습니다.'
+        : '중복 없는 참가자 10명을 입력해주세요.';
+  }
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  void initState() {
+    super.initState();
+    _controllers = List.generate(10, (index) => TextEditingController());
+  }
+
+  @override
+  void dispose() {
+    for (final controller in _controllers) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
+  void _clearPlayers() {
+    for (final controller in _controllers) {
+      controller.clear();
+    }
+
+    ref.read(playerProvider.notifier).resetPlayers();
+  }
+
+  void _goToCategoryPage(List<String> players) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            PokemonCategoryPage(players: _trimPlayers(players)),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final players = ref.watch(playerProvider);
     final hasValidPlayers = _hasValidPlayers(players);
+    final enteredPlayerCount = _enteredPlayerCount(players);
 
     return Scaffold(
       appBar: AppBar(title: const Text('플레이어 이름 입력')),
@@ -33,6 +87,27 @@ class PlayerNamePage extends ConsumerWidget {
             child: SingleChildScrollView(
               child: Column(
                 children: [
+                  Text(
+                    '입력 $enteredPlayerCount/10명',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    _helperText(players),
+                    style: hasValidPlayers
+                        ? null
+                        : const TextStyle(color: Colors.redAccent),
+                    textAlign: TextAlign.center,
+                  ),
+                  if (_hasEnteredPlayers(players))
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: _clearPlayers,
+                        child: const Text('전체 초기화'),
+                      ),
+                    ),
+                  const SizedBox(height: 8),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
@@ -47,6 +122,7 @@ class PlayerNamePage extends ConsumerWidget {
                                   horizontal: 16,
                                 ),
                                 child: TextField(
+                                  controller: _controllers[playerIndex],
                                   onChanged: (value) => ref
                                       .read(playerProvider.notifier)
                                       .updatePlayer(playerIndex, value),
@@ -72,25 +148,22 @@ class PlayerNamePage extends ConsumerWidget {
                         textAlign: TextAlign.center,
                       ),
                     ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: hasValidPlayers
+                          ? () => _goToCategoryPage(players)
+                          : null,
+                      child: const Text('포켓몬 선택 방식 고르기'),
+                    ),
+                  ),
                 ],
               ),
             ),
           ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: hasValidPlayers
-            ? () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        PokemonCategoryPage(players: _trimPlayers(players)),
-                  ),
-                );
-              }
-            : null,
-        child: const Icon(Icons.navigate_next),
       ),
     );
   }
