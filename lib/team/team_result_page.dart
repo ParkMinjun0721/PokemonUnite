@@ -19,11 +19,34 @@ class _TeamResultPageState extends State<TeamResultPage> {
   void initState() {
     super.initState();
     logic = TeamAssignmentLogic();
+    _assignTeams(notify: false);
+  }
 
+  void _assignTeams({bool notify = true}) {
     try {
-      result = logic.assignTeams(widget.players);
+      final assignedResult = logic.assignTeams(widget.players);
+
+      void updateResult() {
+        result = assignedResult;
+        assignmentError = null;
+      }
+
+      if (notify) {
+        setState(updateResult);
+      } else {
+        updateResult();
+      }
     } on TeamAssignmentException catch (error) {
-      assignmentError = error.message;
+      void updateError() {
+        result = null;
+        assignmentError = error.message;
+      }
+
+      if (notify) {
+        setState(updateError);
+      } else {
+        updateError();
+      }
     }
   }
 
@@ -55,19 +78,46 @@ class _TeamResultPageState extends State<TeamResultPage> {
     }
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          '1팀:',
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+        Expanded(
+          child: ListView(
+            children: [
+              const Text(
+                '1팀:',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              ),
+              ...assignedResult.team1.map(
+                (player) => ListTile(title: Text(player)),
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                '2팀:',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              ),
+              ...assignedResult.team2.map(
+                (player) => ListTile(title: Text(player)),
+              ),
+            ],
+          ),
         ),
-        ...assignedResult.team1.map((player) => ListTile(title: Text(player))),
-        const SizedBox(height: 20),
-        const Text(
-          '2팀:',
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
+          height: 50,
+          child: ElevatedButton(
+            onPressed: _assignTeams,
+            child: const Text('다시 배정'),
+          ),
         ),
-        ...assignedResult.team2.map((player) => ListTile(title: Text(player))),
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
+          height: 50,
+          child: OutlinedButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('입력으로 돌아가기'),
+          ),
+        ),
       ],
     );
   }
