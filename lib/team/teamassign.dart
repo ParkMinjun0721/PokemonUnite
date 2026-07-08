@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pokemonbattle/team/team_assignment_logic.dart';
 import 'package:pokemonbattle/team/team_result_page.dart';
 
 class TeamAssignmentPage extends StatefulWidget {
@@ -10,15 +11,11 @@ class TeamAssignmentPage extends StatefulWidget {
 
 class _TeamAssignmentPageState extends State<TeamAssignmentPage> {
   List<String> players = List.filled(10, ''); // 10개의 빈 문자열로 초기화
+  final TeamAssignmentLogic _logic = TeamAssignmentLogic();
 
-  bool get _hasValidPlayers {
-    final trimmedPlayers = players.map((name) => name.trim()).toList();
-    return trimmedPlayers.every((name) => name.isNotEmpty) &&
-        trimmedPlayers.toSet().length == trimmedPlayers.length;
-  }
+  bool get _hasValidPlayers => _logic.hasValidPlayers(players);
 
-  List<String> get _trimmedPlayers =>
-      players.map((name) => name.trim()).toList();
+  List<String> get _trimmedPlayers => _logic.trimPlayers(players);
 
   @override
   Widget build(BuildContext context) {
