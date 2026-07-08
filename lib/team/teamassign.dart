@@ -12,10 +12,52 @@ class TeamAssignmentPage extends StatefulWidget {
 class _TeamAssignmentPageState extends State<TeamAssignmentPage> {
   List<String> players = List.filled(10, ''); // 10개의 빈 문자열로 초기화
   final TeamAssignmentLogic _logic = TeamAssignmentLogic();
+  late final List<TextEditingController> _controllers;
 
   bool get _hasValidPlayers => _logic.hasValidPlayers(players);
 
   List<String> get _trimmedPlayers => _logic.trimPlayers(players);
+
+  int get _enteredPlayerCount =>
+      players.where((name) => name.trim().isNotEmpty).length;
+
+  bool get _hasEnteredPlayers => _enteredPlayerCount > 0;
+
+  String get _helperText =>
+      _hasValidPlayers ? '참가자 10명이 준비되었습니다.' : '중복 없는 참가자 10명을 입력해주세요.';
+
+  void _goToResultPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TeamResultPage(players: _trimmedPlayers),
+      ),
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _controllers = List.generate(10, (index) => TextEditingController());
+  }
+
+  @override
+  void dispose() {
+    for (final controller in _controllers) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
+  void _clearPlayers() {
+    for (final controller in _controllers) {
+      controller.clear();
+    }
+
+    setState(() {
+      players = List.filled(10, '');
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,10 +74,32 @@ class _TeamAssignmentPageState extends State<TeamAssignmentPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  Text(
+                    '입력 $_enteredPlayerCount/10명',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    _helperText,
+                    style: _hasValidPlayers
+                        ? null
+                        : const TextStyle(color: Colors.redAccent),
+                    textAlign: TextAlign.center,
+                  ),
+                  if (_hasEnteredPlayers)
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: _clearPlayers,
+                        child: const Text('전체 초기화'),
+                      ),
+                    ),
+                  const SizedBox(height: 8),
                   ...List.generate(10, (index) {
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
                       child: TextField(
+                        controller: _controllers[index],
                         onChanged: (value) {
                           setState(() {
                             players[index] = value; // 플레이어 이름 입력
@@ -58,26 +122,20 @@ class _TeamAssignmentPageState extends State<TeamAssignmentPage> {
                         textAlign: TextAlign.center,
                       ),
                     ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: _hasValidPlayers ? _goToResultPage : null,
+                      child: const Text('팀 랜덤 배정'),
+                    ),
+                  ),
                 ],
               ),
             ),
           ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _hasValidPlayers
-            ? () {
-                // 모든 이름이 입력된 후 팀 배정을 진행
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        TeamResultPage(players: _trimmedPlayers),
-                  ),
-                );
-              }
-            : null,
-        child: const Icon(Icons.navigate_next),
       ),
     );
   }
