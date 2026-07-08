@@ -7,70 +7,59 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 화면의 크기를 가져옵니다.
-    final screenWidth = MediaQuery.of(context).size.width;
-
     return Scaffold(
       appBar: AppBar(title: const Text('포켓몬 유나이트 내전 프로그램')),
       body: SafeArea(
         child: SingleChildScrollView(
-          child: SizedBox(
-            width: screenWidth,
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 400),
-                    child: Image.asset('images/suzy3.jpeg'),
-                  ),
-                  const SizedBox(height: 15),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: const SelectableText(
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 420),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.asset('images/suzy3.jpeg'),
+                    ),
+                    const SizedBox(height: 16),
+                    const SelectableText(
                       '모바일 기준으로 제작했습니다.\n'
                       '핸드폰 정도의 화면 비율로 바꾸시면 쾌적하게 이용하실 수 있습니다.\n'
                       'Made by 님블\n'
                       '오류/문의 : pmjunasd@gmail.com',
                       textAlign: TextAlign.center,
                     ),
-                  ),
-                  const SizedBox(height: 15),
-                  // 버튼 레이아웃 조정
-                  Wrap(
-                    spacing: screenWidth > 400 ? 100 : 20, // 버튼 간의 가로 간격
-                    runSpacing: screenWidth > 400 ? 100 : 20, // 버튼 간의 세로 간격
-                    alignment: WrapAlignment.center,
-                    children: [
-                      _buildButton(
-                        context,
-                        color: Colors.green,
-                        label: '팀 랜덤 배정',
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const TeamAssignmentPage(),
-                            ),
-                          );
-                        },
-                      ),
-                      _buildButton(
-                        context,
-                        color: Colors.blue,
-                        label: '포켓몬 랜덤 선택',
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const PlayerNamePage(),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ],
+                    const SizedBox(height: 20),
+                    _buildActionButton(
+                      context,
+                      icon: Icons.groups,
+                      label: '팀 랜덤 배정',
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const TeamAssignmentPage(),
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    _buildActionButton(
+                      context,
+                      icon: Icons.catching_pokemon,
+                      label: '포켓몬 랜덤 선택',
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const PlayerNamePage(),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -79,34 +68,19 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildButton(
+  Widget _buildActionButton(
     BuildContext context, {
-    required Color color,
+    required IconData icon,
     required String label,
-    required VoidCallback onTap,
+    required VoidCallback onPressed,
   }) {
-    final screenWidth = MediaQuery.of(context).size.width;
-
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        width:
-            screenWidth > 400 ? 150 : screenWidth * 0.4, // 화면 너비에 따라 버튼 크기 조정
-        height: screenWidth > 400 ? 150 : screenWidth * 0.4,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(15),
-          color: color,
-        ),
-        child: Center(
-          child: Text(
-            label,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: screenWidth > 400 ? 20 : 15,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ),
+    return SizedBox(
+      width: double.infinity,
+      height: 56,
+      child: ElevatedButton.icon(
+        onPressed: onPressed,
+        icon: Icon(icon),
+        label: Text(label),
       ),
     );
   }
