@@ -17,6 +17,25 @@ void main() {
     expect(find.text('포켓몬 랜덤 선택'), findsOneWidget);
   });
 
+  testWidgets('home actions open assignment input pages', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const ProviderScope(child: MyApp()));
+
+    await tester.tap(find.text('팀 랜덤 배정'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('팀 배정 입력'), findsOneWidget);
+
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('포켓몬 랜덤 선택'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('플레이어 이름 입력'), findsOneWidget);
+  });
+
   testWidgets('uses all pokemon categories when none are selected', (
     WidgetTester tester,
   ) async {
