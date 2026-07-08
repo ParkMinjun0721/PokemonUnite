@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:pokemonbattle/main.dart';
 import 'package:pokemonbattle/pokemon/pokemon_category_page.dart';
+import 'package:pokemonbattle/pokemon/playername.dart';
 import 'package:pokemonbattle/team/teamassign.dart';
 import 'package:pokemonbattle/team/team_result_page.dart';
 
@@ -140,6 +141,30 @@ void main() {
     expect(find.text('입력 0/10명'), findsOneWidget);
     expect(find.text('중복 없는 참가자 10명을 입력해주세요.'), findsOneWidget);
     expect(find.text('팀 랜덤 배정'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextField).at(0), 'p1');
+    await tester.pump();
+
+    expect(find.text('입력 1/10명'), findsOneWidget);
+    expect(find.text('전체 초기화'), findsOneWidget);
+
+    await tester.tap(find.text('전체 초기화'));
+    await tester.pump();
+
+    expect(find.text('입력 0/10명'), findsOneWidget);
+    expect(find.text('p1'), findsNothing);
+  });
+
+  testWidgets('tracks and clears pokemon assignment player inputs', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      const ProviderScope(child: MyAppForTest(child: PlayerNamePage())),
+    );
+
+    expect(find.text('입력 0/10명'), findsOneWidget);
+    expect(find.text('중복 없는 참가자 10명을 입력해주세요.'), findsOneWidget);
+    expect(find.text('포켓몬 선택 방식 고르기'), findsOneWidget);
 
     await tester.enterText(find.byType(TextField).at(0), 'p1');
     await tester.pump();
