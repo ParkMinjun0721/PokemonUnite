@@ -49,6 +49,9 @@ class _PokemonAssignmentPageState extends State<PokemonAssignmentPage> {
   }
 
   void _assignPokemon() {
+    playerPokemonMap.clear();
+    assignmentError = null;
+
     try {
       if (widget.preferredPokemon.isNotEmpty) {
         logic.assignPreferredPokemon(
@@ -76,6 +79,11 @@ class _PokemonAssignmentPageState extends State<PokemonAssignmentPage> {
     } on PokemonAssignmentException catch (error) {
       assignmentError = error.message;
     }
+  }
+
+  void _rerollPokemon() {
+    setState(_assignPokemon);
+    _pageController.jumpToPage(0);
   }
 
   @override
@@ -113,6 +121,8 @@ class _PokemonAssignmentPageState extends State<PokemonAssignmentPage> {
                   playerPokemonMap: playerPokemonMap,
                   team1: team1,
                   team2: team2,
+                  onReroll: _rerollPokemon,
+                  onBackToSettings: () => Navigator.pop(context),
                 );
               } else {
                 return buildPlayerPage(widget.players[index]);
