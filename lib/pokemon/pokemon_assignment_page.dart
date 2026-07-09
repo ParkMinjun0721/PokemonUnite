@@ -218,26 +218,52 @@ class _PokemonAssignmentPageState extends State<PokemonAssignmentPage> {
 
   Widget buildPlayerPage(String player) {
     final pokemon = playerPokemonMap[player];
+    final pokemonName = pokemon?['name'];
+    final pokemonImage = pokemon?['image'];
 
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            player,
-            style: const TextStyle(fontSize: 28, color: Colors.green),
-          ),
-          if (pokemon != null)
-            Column(
-              children: [
-                Text(
-                  '${pokemon['name']}이(가) 배정되었습니다!',
-                  style: const TextStyle(fontSize: 20),
-                ),
-                Image.asset(pokemon['image'] ?? '', height: 200),
-              ],
+    return Padding(
+      padding: const EdgeInsets.all(24.0),
+      child: Center(
+        child: SingleChildScrollView(
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              border: Border.all(color: Theme.of(context).dividerColor),
+              borderRadius: BorderRadius.circular(8),
             ),
-        ],
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    player,
+                    style: const TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 12),
+                  const Text(
+                    '배정 포켓몬',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    pokemonName != null
+                        ? '$pokemonName이(가) 배정되었습니다!'
+                        : '배정 대기 중입니다.',
+                    style: const TextStyle(fontSize: 20),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  if (pokemonImage != null)
+                    Image.asset(pokemonImage, height: 200, fit: BoxFit.contain),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
