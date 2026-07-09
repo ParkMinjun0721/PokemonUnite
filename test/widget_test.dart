@@ -255,6 +255,7 @@ void main() {
     );
 
     expect(find.text('1/10명 확인 중'), findsOneWidget);
+    expect(find.text('배정 포켓몬'), findsOneWidget);
     expect(find.text('다음'), findsOneWidget);
 
     for (var i = 0; i < 9; i++) {
