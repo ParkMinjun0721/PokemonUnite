@@ -31,6 +31,15 @@ class _PokemonAssignmentPageState extends State<PokemonAssignmentPage> {
   int _currentPage = 0;
   String? assignmentError;
 
+  bool get _isResultPage => _currentPage == widget.players.length;
+
+  String get _progressText => _isResultPage
+      ? '결과'
+      : '${_currentPage + 1}/${widget.players.length}명 확인 중';
+
+  String get _nextButtonLabel =>
+      _currentPage == widget.players.length - 1 ? '결과 보기' : '다음';
+
   @override
   void initState() {
     super.initState();
@@ -130,60 +139,52 @@ class _PokemonAssignmentPageState extends State<PokemonAssignmentPage> {
             },
           ),
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: SizedBox(
-                width: 120, // 버튼 너비를 고정
-                height: 50, // 버튼 높이를 고정
-                child: ElevatedButton(
-                  onPressed: _currentPage > 0
-                      ? () {
-                          _pageController.jumpToPage(_currentPage - 1);
-                        }
-                      : null,
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10), // 둥근 모서리
-                    ),
-                    textStyle: const TextStyle(
-                      fontSize: 16, // 텍스트 크기
-                      fontWeight: FontWeight.bold, // 텍스트 굵기
-                    ),
-                  ),
-                  child: const Text('이전'),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: SizedBox(
-                width: 120, // 버튼 너비를 고정
-                height: 50, // 버튼 높이를 고정
-                child: ElevatedButton(
-                  onPressed: _currentPage < widget.players.length
-                      ? () {
-                          _pageController.jumpToPage(_currentPage + 1);
-                        }
-                      : null,
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10), // 둥근 모서리
-                    ),
-                    textStyle: const TextStyle(
-                      fontSize: 16, // 텍스트 크기
-                      fontWeight: FontWeight.bold, // 텍스트 굵기
-                    ),
-                  ),
-                  child: const Text('다음'),
-                ),
-              ),
-            ),
-          ],
-        ),
+        if (!_isResultPage) _buildNavigationControls(),
       ],
+    );
+  }
+
+  Widget _buildNavigationControls() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        children: [
+          Text(
+            _progressText,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: 50,
+                  child: OutlinedButton(
+                    onPressed: _currentPage > 0
+                        ? () {
+                            _pageController.jumpToPage(_currentPage - 1);
+                          }
+                        : null,
+                    child: const Text('이전'),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: SizedBox(
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      _pageController.jumpToPage(_currentPage + 1);
+                    },
+                    child: Text(_nextButtonLabel),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
