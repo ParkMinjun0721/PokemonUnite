@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:pokemonbattle/main.dart';
 import 'package:pokemonbattle/pokemon/pokemon_category_page.dart';
 import 'package:pokemonbattle/pokemon/playername.dart';
+import 'package:pokemonbattle/pokemon/result_page.dart';
 import 'package:pokemonbattle/team/teamassign.dart';
 import 'package:pokemonbattle/team/team_result_page.dart';
 
@@ -196,6 +197,37 @@ void main() {
 
     expect(find.text('입력 0/10명'), findsOneWidget);
     expect(find.text('p1'), findsNothing);
+  });
+
+  testWidgets('pokemon result page exposes reroll and settings actions', (
+    WidgetTester tester,
+  ) async {
+    var rerollCount = 0;
+    var backCount = 0;
+
+    await tester.pumpWidget(
+      MyAppForTest(
+        child: ResultsPage(
+          playerPokemonMap: const {
+            'p1': {'name': '피카츄', 'image': 'images/Pikachu.png'},
+            'p2': {'name': '라우드본', 'image': 'images/laudbone.webp'},
+          },
+          team1: const ['p1'],
+          team2: const ['p2'],
+          onReroll: () => rerollCount++,
+          onBackToSettings: () => backCount++,
+        ),
+      ),
+    );
+
+    expect(find.text('다시 배정'), findsOneWidget);
+    expect(find.text('설정으로 돌아가기'), findsOneWidget);
+
+    await tester.tap(find.text('다시 배정'));
+    await tester.tap(find.text('설정으로 돌아가기'));
+
+    expect(rerollCount, 1);
+    expect(backCount, 1);
   });
 }
 
