@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:pokemonbattle/main.dart';
+import 'package:pokemonbattle/pokemon/pokemon_assignment_page.dart';
 import 'package:pokemonbattle/pokemon/pokemon_category_page.dart';
 import 'package:pokemonbattle/pokemon/playername.dart';
 import 'package:pokemonbattle/pokemon/result_page.dart';
@@ -228,6 +229,47 @@ void main() {
 
     expect(rerollCount, 1);
     expect(backCount, 1);
+  });
+
+  testWidgets('pokemon assignment page shows progress and result action', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      const MyAppForTest(
+        child: PokemonAssignmentPage(
+          players: [
+            'p1',
+            'p2',
+            'p3',
+            'p4',
+            'p5',
+            'p6',
+            'p7',
+            'p8',
+            'p9',
+            'p10'
+          ],
+          selectedCategories: ['어택형', '밸런스형', '스피드형', '디펜스형', '서포트형'],
+        ),
+      ),
+    );
+
+    expect(find.text('1/10명 확인 중'), findsOneWidget);
+    expect(find.text('다음'), findsOneWidget);
+
+    for (var i = 0; i < 9; i++) {
+      await tester.tap(find.text('다음'));
+      await tester.pump();
+    }
+
+    expect(find.text('10/10명 확인 중'), findsOneWidget);
+    expect(find.text('결과 보기'), findsOneWidget);
+
+    await tester.tap(find.text('결과 보기'));
+    await tester.pump();
+
+    expect(find.text('설정으로 돌아가기'), findsOneWidget);
+    expect(find.text('결과 보기'), findsNothing);
   });
 }
 
