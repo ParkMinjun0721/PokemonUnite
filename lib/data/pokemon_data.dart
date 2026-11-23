@@ -79,8 +79,32 @@ List<Map<String, String>> pokemonList = [
   {'name': '장크로다일', 'image': 'images/t_Square_Feraligatr.webp', 'category': '밸런스형'},
   {'name': '타타륜', 'image': 'images/t_Square_Dhelmise.webp', 'category': '밸런스형'},
   {'name': '나옹', 'image': 'images/t_Square_Meowth.webp', 'category': '스피드형'},
-  {'name': '메가니움', 'image': 'images/t_Square_Meganium.webp', 'category': '서포트형'},
-  {'name': '라우드본', 'image': 'images/laudbone.webp', 'category': '어택형'},
+  {
+    'name': '메가니움',
+    'image': 'images/t_Square_Meganium.webp',
+    'category': '서포트형',
+  },
+  {'name': '이벨타르', 'image': 'images/t_Square_Yveltal.webp', 'category': '어택형'},
+  {
+    'name': '스트린더',
+    'image': 'images/t_Square_Toxtricity.webp',
+    'category': '어택형',
+  },
+  {
+    'name': '솔가레오',
+    'image': 'images/t_Square_Solgaleo.webp',
+    'category': '밸런스형',
+  },
+  {'name': '레시라무', 'image': 'images/t_Square_Reshiram.png', 'category': '어택형'},
+  {
+    'name': '웨이니발',
+    'image': 'images/t_Square_Quaquaval.webp',
+    'category': '밸런스형',
+  },
+  {'name': '펄기아', 'image': 'images/t_Square_Palkia.webp', 'category': '밸런스형'},
+  {'name': '모르페코', 'image': 'images/t_Square_Morpeko.webp', 'category': '스피드형'},
+  {'name': '쥬피썬더', 'image': 'images/t_Square_Jolteon.webp', 'category': '스피드형'},
+  {'name': '부스터', 'image': 'images/t_Square_Flareon.webp', 'category': '밸런스형'},
 
   // EX 포켓몬
   {'name': '자시안', 'image': 'images/Zacian.png', 'category': '밸런스형'},

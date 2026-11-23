@@ -1002,7 +1002,7 @@ void main() {
       0,
     );
 
-    for (final pokemonName in ['피카츄', '라우드본', '에이스번', '샹델라', '가디안']) {
+    for (final pokemonName in ['피카츄', '레시라무', '에이스번', '샹델라', '가디안']) {
       await tester.enterText(find.byType(TextField), pokemonName);
       await tester.pumpAndSettle();
       expect(find.text('검색 결과 1마리'), findsOneWidget);

@@ -15,13 +15,13 @@ void main() {
       team1: team1,
       team2: team2,
       playerPokemonMap: playerPokemonMap,
-      excludedPokemon: const ['라우드본'],
+      excludedPokemon: const ['레시라무'],
     );
 
     expect(playerPokemonMap.length, 10);
     expect(
       playerPokemonMap.values.map((pokemon) => pokemon['name']),
-      isNot(contains('라우드본')),
+      isNot(contains('레시라무')),
     );
   });
 
@@ -62,7 +62,7 @@ void main() {
     final playerPokemonMap = <String, Map<String, String>>{};
     const preferredPokemon = [
       '피카츄',
-      '라우드본',
+      '레시라무',
       '에이스번',
       '샹델라',
       '가디안',
