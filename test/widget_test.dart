@@ -1,3 +1,5 @@
+import 'dart:ui' show SemanticsFlag;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -102,7 +104,7 @@ void main() {
   testWidgets(
       'fixed teams restore visible names and preferred picks survive searches',
       (tester) async {
-    await openHome(tester, const Size(390, 844));
+    await openHome(tester, const Size(375, 667));
     await press(tester, '정해진 팀에 포켓몬 배정');
     await fillNames(tester);
     await tester.tap(find.byType(BackButton));
@@ -125,18 +127,28 @@ void main() {
     await press(tester, '선호 포켓몬 선택');
     final search = find.byType(TextField);
     final pool = ['앱솔', '에이스번', '카디나르마', '번치코', '레시라무'];
+    tester.view.viewInsets = const FakeViewPadding(bottom: 300);
+    await tester.pumpAndSettle();
     expect(tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
         isNull);
     for (final name in pool) {
       await tester.enterText(search, name);
       await tester.pump();
       await press(tester, name);
+      expect(
+          tester
+              .getSemantics(find.widgetWithText(FilterChip, name))
+              .hasFlag(SemanticsFlag.isSelected),
+          isTrue);
       expect(tester.widget<FilledButton>(find.byType(FilledButton)).enabled,
           name == pool.last);
     }
     await tester.enterText(search, '없는이름');
     await tester.pump();
     expect(find.textContaining('검색 결과가 없습니다'), findsOneWidget);
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    tester.view.resetViewInsets();
+    await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('검색어 지우기'));
     await tester.pump();
     expect(find.byType(ExpansionTile), findsWidgets);
