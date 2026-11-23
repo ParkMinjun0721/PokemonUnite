@@ -1,142 +1,86 @@
 import 'package:flutter/material.dart';
+import '../widgets/match_page.dart';
 import 'pokemon_assignment_page.dart';
 import 'preferred_pokemon_page.dart';
 
-class PokemonCategoryPage extends StatefulWidget {
-  final List<String> players;
+enum _Mode {
+  balanced('팀마다 역할군별 1마리'),
+  roles('선택한 역할군에서 랜덤'),
+  preferred('선호 목록에서 랜덤');
 
+  const _Mode(this.label);
+  final String label;
+}
+
+const pokemonRoles = ['어택형', '밸런스형', '스피드형', '디펜스형', '서포트형'];
+
+class PokemonCategoryPage extends StatefulWidget {
   const PokemonCategoryPage({super.key, required this.players});
+  final List<String> players;
 
   @override
   State<PokemonCategoryPage> createState() => _PokemonCategoryPageState();
 }
 
 class _PokemonCategoryPageState extends State<PokemonCategoryPage> {
-  Map<String, bool> categories = {
-    '어택형': false,
-    '밸런스형': false,
-    '스피드형': false,
-    '디펜스형': false,
-    '서포트형': false,
-  };
+  _Mode mode = _Mode.balanced;
+  final selected = <String>{};
+
+  void _continue() {
+    final page = mode == _Mode.preferred
+        ? PreferredPokemonPage(players: widget.players)
+        : PokemonAssignmentPage(
+            players: widget.players,
+            selectedCategories:
+                mode == _Mode.balanced ? pokemonRoles : selected.toList(),
+            assignOneFromEach: mode == _Mode.balanced,
+          );
+    Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => page));
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('포켓몬 카테고리 선택')),
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(
-            maxWidth: 400, // 화면 크기를 400px로 제한
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                Expanded(
-                  child: ListView(
-                    children: categories.keys.map((category) {
-                      return CheckboxListTile(
-                        title: Text(category),
-                        value: categories[category],
-                        onChanged: (bool? value) {
-                          setState(() {
-                            categories[category] = value ?? false;
-                          });
-                        },
-                      );
-                    }).toList(),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                const Text("포켓몬 배정에 오류가 있으면, 새로고침 해주세요!\n가끔 오류가 납니다 :( "),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: categories.values.contains(true)
-                        ? () {
-                            List<String> selectedCategories = categories.entries
-                                .where((entry) => entry.value)
-                                .map((entry) => entry.key)
-                                .toList();
-
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => PokemonAssignmentPage(
-                                  players: widget.players,
-                                  selectedCategories: selectedCategories,
-                                  assignOneFromEach: false,
-                                ),
-                              ),
-                            );
-                          }
-                        : null,
-                    child: const Text('선택된 카테고리에서 랜덤 배정'),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => PokemonAssignmentPage(
-                            players: widget.players,
-                            selectedCategories: categories.keys.toList(),
-                            assignOneFromEach: true,
-                          ),
-                        ),
-                      );
-                    },
-                    child: const Text('각 포지션에서 한 마리씩 배정'),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              PreferredPokemonPage(players: widget.players),
-                        ),
-                      );
-                    },
-                    child: const Text('선호 포켓몬 배정'),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                // SizedBox(
-                //   width: double.infinity,
-                //   height: 50,
-                //   child: ElevatedButton(
-                //     onPressed: () {
-                //       Navigator.push(
-                //         context,
-                //         MaterialPageRoute(
-                //           builder: (context) =>
-                //               ExcludePokemonPage(players: widget.players),
-                //         ),
-                //       );
-                //     },
-                //     child: Text('포켓몬 제외 배정'),
-                //   ),
-                // ),
-                // SizedBox(height: 20),
-              ],
-            ),
-          ),
-        ),
+    final theme = Theme.of(context);
+    return MatchPage(
+      title: '배정 방식 선택',
+      action: FilledButton(
+        onPressed: mode == _Mode.roles && selected.isEmpty ? null : _continue,
+        child: Text(mode == _Mode.preferred ? '선호 포켓몬 선택' : '포켓몬 배정하기'),
       ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Text('한 팀 안에서는 서로 다른 포켓몬을 배정합니다. 상대 팀에는 같은 포켓몬이 나올 수 있습니다.',
+            style: theme.textTheme.bodyLarge),
+        const SizedBox(height: 20),
+        for (final option in _Mode.values) ...[
+          RadioListTile<_Mode>(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            value: option,
+            groupValue: mode,
+            tileColor:
+                mode == option ? theme.colorScheme.primaryContainer : null,
+            onChanged: (value) => setState(() => mode = value!),
+            title: Text(option.label),
+          ),
+          if (option == _Mode.roles && mode == option)
+            Padding(
+                padding: const EdgeInsets.all(12),
+                child: Wrap(spacing: 8, children: [
+                  for (final role in pokemonRoles)
+                    FilterChip(
+                        label: Text(role),
+                        selected: selected.contains(role),
+                        onSelected: (enabled) => setState(() {
+                              if (enabled) {
+                                selected.add(role);
+                              } else {
+                                selected.remove(role);
+                              }
+                            })),
+                ])),
+          const SizedBox(height: 8),
+        ],
+      ]),
     );
   }
 }

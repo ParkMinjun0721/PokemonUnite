@@ -1,75 +1,71 @@
 import 'package:flutter/material.dart';
-import 'package:pokemonbattle/pokemon/playername.dart';
-import 'package:pokemonbattle/team/teamassign.dart';
+import 'pokemon/playername.dart';
+import 'team/teamassign.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // 화면의 크기를 가져옵니다.
-    final screenWidth = MediaQuery.of(context).size.width;
-
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
     return Scaffold(
-      appBar: AppBar(title: const Text('포켓몬 유나이트 내전 프로그램')),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: SizedBox(
-            width: screenWidth,
-            child: Center(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 540),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 400),
-                    child: Image.asset('images/suzy3.jpeg'),
+                  Row(children: [
+                    Expanded(
+                        child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('포켓몬 유나이트',
+                            style: theme.textTheme.titleMedium
+                                ?.copyWith(color: colors.primary)),
+                        const SizedBox(height: 6),
+                        Semantics(
+                            header: true,
+                            child: Text('내전 매니저',
+                                style: theme.textTheme.displaySmall
+                                    ?.copyWith(fontWeight: FontWeight.w800))),
+                      ],
+                    )),
+                    const SizedBox(width: 12),
+                    ClipRRect(
+                        borderRadius: BorderRadius.circular(24),
+                        child: Image.asset(
+                          'images/suzy3.jpeg',
+                          width: 88,
+                          height: 88,
+                          excludeFromSemantics: true,
+                        )),
+                  ]),
+                  const SizedBox(height: 28),
+                  _HomeAction(
+                    label: '10명을 두 팀으로 나누기',
+                    detail: '참가자 10명을 무작위로 5명씩 편성합니다.',
+                    icon: Icons.groups_outlined,
+                    color: colors.primaryContainer,
+                    ink: colors.onPrimaryContainer,
+                    page: const TeamAssignmentPage(),
                   ),
-                  const SizedBox(height: 15),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: const SelectableText(
-                      '모바일 기준으로 제작했습니다.\n'
-                      '핸드폰 정도의 화면 비율로 바꾸시면 쾌적하게 이용하실 수 있습니다.\n'
-                      'Made by 님블\n'
-                      '오류/문의 : pmjunasd@gmail.com',
-                      textAlign: TextAlign.center,
-                    ),
+                  const SizedBox(height: 12),
+                  _HomeAction(
+                    label: '정해진 팀에 포켓몬 배정',
+                    detail: '팀별 명단을 입력하고 배정 방식을 고릅니다.',
+                    icon: Icons.catching_pokemon,
+                    color: colors.secondaryContainer,
+                    ink: colors.onSecondaryContainer,
+                    page: const PlayerNamePage(),
                   ),
-                  const SizedBox(height: 15),
-                  // 버튼 레이아웃 조정
-                  Wrap(
-                    spacing: screenWidth > 400 ? 100 : 20, // 버튼 간의 가로 간격
-                    runSpacing: screenWidth > 400 ? 100 : 20, // 버튼 간의 세로 간격
-                    alignment: WrapAlignment.center,
-                    children: [
-                      _buildButton(
-                        context,
-                        color: Colors.green,
-                        label: '팀 랜덤 배정',
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const TeamAssignmentPage(),
-                            ),
-                          );
-                        },
-                      ),
-                      _buildButton(
-                        context,
-                        color: Colors.blue,
-                        label: '포켓몬 랜덤 선택',
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const PlayerNamePage(),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
+                  const SizedBox(height: 28),
+                  SelectableText('제작 님블  ·  문의 pmjunasd@gmail.com',
+                      style: theme.textTheme.bodySmall),
                 ],
               ),
             ),
@@ -78,36 +74,55 @@ class HomePage extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildButton(
-    BuildContext context, {
-    required Color color,
-    required String label,
-    required VoidCallback onTap,
-  }) {
-    final screenWidth = MediaQuery.of(context).size.width;
+class _HomeAction extends StatelessWidget {
+  const _HomeAction(
+      {required this.label,
+      required this.detail,
+      required this.icon,
+      required this.color,
+      required this.ink,
+      required this.page});
+  final String label, detail;
+  final IconData icon;
+  final Color color, ink;
+  final Widget page;
 
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        width:
-            screenWidth > 400 ? 150 : screenWidth * 0.4, // 화면 너비에 따라 버튼 크기 조정
-        height: screenWidth > 400 ? 150 : screenWidth * 0.4,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(15),
-          color: color,
-        ),
-        child: Center(
-          child: Text(
-            label,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: screenWidth > 400 ? 20 : 15,
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Material(
+      color: color,
+      borderRadius: BorderRadius.circular(20),
+      clipBehavior: Clip.antiAlias,
+      child: Semantics(
+          button: true,
+          child: InkWell(
+            onTap: () => Navigator.of(context)
+                .push(MaterialPageRoute<void>(builder: (_) => page)),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Icon(icon, color: ink),
+                          Icon(Icons.arrow_forward, color: ink),
+                        ]),
+                    const SizedBox(height: 14),
+                    Text(label,
+                        style: theme.textTheme.titleLarge?.copyWith(
+                            color: ink, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 4),
+                    Text(detail,
+                        style:
+                            theme.textTheme.bodyMedium?.copyWith(color: ink)),
+                  ]),
             ),
-            textAlign: TextAlign.center,
-          ),
-        ),
-      ),
+          )),
     );
   }
 }

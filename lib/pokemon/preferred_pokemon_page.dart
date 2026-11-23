@@ -1,138 +1,122 @@
 import 'package:flutter/material.dart';
-import 'pokemon_assignment_page.dart';
 import '../data/pokemon_data.dart';
+import '../widgets/match_page.dart';
+import 'pokemon_assignment_page.dart';
 
 class PreferredPokemonPage extends StatefulWidget {
-  final List<String> players;
-
   const PreferredPokemonPage({super.key, required this.players});
+  final List<String> players;
 
   @override
   State<PreferredPokemonPage> createState() => _PreferredPokemonPageState();
 }
 
 class _PreferredPokemonPageState extends State<PreferredPokemonPage> {
-  List<String> selectedPokemon = []; // 선택된 포켓몬 리스트
-  String searchQuery = ''; // 검색어
+  final selected = <String>{};
+  final search = TextEditingController();
+  bool showSelected = false;
 
-  // 포켓몬을 카테고리별로 분류
-  Map<String, List<String>> get categorizedPokemon {
-    Map<String, List<String>> categories = {
-      '어택형': [],
-      '밸런스형': [],
-      '스피드형': [],
-      '디펜스형': [],
-      '서포트형': [],
-    };
+  @override
+  void dispose() {
+    search.dispose();
+    super.dispose();
+  }
 
-    for (var pokemon in pokemonList) {
-      String category = pokemon['category']!;
-      String name = pokemon['name']!;
-      if (name.toLowerCase().contains(searchQuery.toLowerCase())) {
-        categories[category]?.add(name);
-      }
-    }
-
-    return categories;
+  Widget _options(Iterable<Map<String, String>> options) {
+    return Wrap(spacing: 8, runSpacing: 4, children: [
+      for (final pokemon in options)
+        FilterChip(
+          label: Text(pokemon['name']!),
+          selected: selected.contains(pokemon['name']),
+          onSelected: (enabled) => setState(() {
+            final name = pokemon['name']!;
+            if (enabled) {
+              selected.add(name);
+            } else {
+              selected.remove(name);
+            }
+          }),
+        ),
+    ]);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('선호 포켓몬 선택')),
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(
-            maxWidth: 400, // 화면 크기를 400px로 제한
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                // 검색창 추가
-                TextField(
-                  decoration: const InputDecoration(
-                    labelText: '포켓몬 검색',
-                    prefixIcon: Icon(Icons.search),
-                    border: OutlineInputBorder(),
+    final query = search.text.trim().toLowerCase();
+    final matches =
+        pokemonList.where((p) => p['name']!.toLowerCase().contains(query));
+    final roles = pokemonList.map((p) => p['category']!).toSet();
+    return MatchPage(
+      title: '선호 포켓몬 선택',
+      action: FilledButton(
+        onPressed: selected.length < 5
+            ? null
+            : () {
+                FocusScope.of(context).unfocus();
+                Navigator.of(context).push(MaterialPageRoute<void>(
+                  builder: (_) => PokemonAssignmentPage(
+                      players: widget.players,
+                      selectedCategories: const [],
+                      preferredPokemon: selected.toList()),
+                ));
+              },
+        child: Text('선택 ${selected.length}마리 · 배정하기'),
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Text('두 팀이 사용할 포켓몬을 최소 5마리 선택하세요.',
+            style: Theme.of(context).textTheme.bodyLarge),
+        const SizedBox(height: 16),
+        TextField(
+          controller: search,
+          onChanged: (_) => setState(() {}),
+          decoration: InputDecoration(
+            labelText: '포켓몬 검색',
+            prefixIcon: const Icon(Icons.search),
+            suffixIcon: search.text.isEmpty
+                ? null
+                : IconButton(
+                    tooltip: '검색어 지우기',
+                    icon: const Icon(Icons.close),
+                    onPressed: () => setState(search.clear),
                   ),
-                  onChanged: (value) {
-                    setState(() {
-                      searchQuery = value;
-                    });
-                  },
-                ),
-                const SizedBox(height: 16),
-                // 카테고리별 포켓몬 리스트
-                Expanded(
-                  child: ListView(
-                    children: categorizedPokemon.entries.map((entry) {
-                      if (entry.value.isEmpty) {
-                        return const SizedBox(); // 검색 결과가 없을 경우 표시 안 함
-                      }
-                      return ExpansionTile(
-                        title: Text(
-                          entry.key, // 카테고리 이름
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        children: [
-                          ...entry.value.map((pokemonName) {
-                            return FilterChip(
-                              label: Text(pokemonName),
-                              selected: selectedPokemon.contains(pokemonName),
-                              onSelected: (bool selected) {
-                                setState(() {
-                                  if (selected) {
-                                    selectedPokemon.add(pokemonName);
-                                  } else {
-                                    selectedPokemon.remove(pokemonName);
-                                  }
-                                });
-                              },
-                            );
-                          }),
-                        ],
-                      );
-                    }).toList(),
-                  ),
-                ),
-                if (selectedPokemon.isNotEmpty && selectedPokemon.length < 5)
-                  const Padding(
-                    padding: EdgeInsets.only(bottom: 8.0),
-                    child: Text(
-                      '선호 포켓몬은 최소 5마리 이상 선택해주세요.',
-                      style: TextStyle(color: Colors.redAccent),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                const SizedBox(height: 16),
-                // 다음 페이지로 이동 버튼
-                ElevatedButton(
-                  onPressed: selectedPokemon.length >= 5
-                      ? () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => PokemonAssignmentPage(
-                                players: widget.players,
-                                selectedCategories: const [], // 카테고리 없음
-                                preferredPokemon: selectedPokemon, // 선택된 포켓몬 전달
-                              ),
-                            ),
-                          );
-                        }
-                      : null,
-                  child: const Text('선호 포켓몬으로 배정'),
-                ),
-                const SizedBox(height: 20),
-              ],
-            ),
           ),
         ),
-      ),
+        Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              onPressed: selected.isEmpty && !showSelected
+                  ? null
+                  : () => setState(() => showSelected = !showSelected),
+              icon: Icon(showSelected ? Icons.expand_less : Icons.expand_more),
+              label: Text('선택 목록 (${selected.length})'),
+            )),
+        if (showSelected)
+          Wrap(spacing: 8, children: [
+            for (final name in selected)
+              InputChip(
+                  label: Text(name),
+                  deleteButtonTooltipMessage: '$name 선택 해제',
+                  onDeleted: () => setState(() => selected.remove(name))),
+          ]),
+        if (query.isNotEmpty) ...[
+          if (matches.isEmpty)
+            const Padding(
+                padding: EdgeInsets.symmetric(vertical: 16),
+                child: Text('검색 결과가 없습니다. 다른 이름을 입력해 보세요.'))
+          else
+            _options(matches),
+        ] else
+          for (final role in roles)
+            ExpansionTile(
+              key: PageStorageKey(role),
+              title: Text(role),
+              expandedAlignment: Alignment.centerLeft,
+              childrenPadding: const EdgeInsets.fromLTRB(8, 0, 8, 12),
+              children: [
+                _options(pokemonList.where((p) => p['category'] == role))
+              ],
+            ),
+      ]),
     );
   }
 }
