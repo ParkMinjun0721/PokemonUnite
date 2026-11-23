@@ -60,9 +60,14 @@ void main() {
           draft, ['  첫 이름 ', '', '첫 이름', ...names.skip(2)].join('\r\n'));
       await tester.pump();
       expect(find.text('1, 3번째 줄의 이름이 같습니다. 첫 이름'), findsOneWidget);
+      final status = tester.getSemantics(find.text('10/10명 입력'));
+      expect(status.hasFlag(SemanticsFlag.isLiveRegion), isTrue);
+      expect(status.label, contains('1, 3번째 줄의 이름이 같습니다. 첫 이름'));
       expect(tester.widget<FilledButton>(apply).enabled, isFalse);
       await tester.enterText(draft, names.join('\n'));
       await tester.pump();
+      expect(tester.getSemantics(find.text('10/10명 입력')).label,
+          contains('명단을 적용할 수 있습니다.'));
       expect(tester.widget<FilledButton>(apply).enabled, isTrue);
       if (cancel) {
         await press(tester, '취소');

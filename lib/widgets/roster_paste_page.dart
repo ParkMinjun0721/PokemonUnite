@@ -53,13 +53,23 @@ class _RosterPastePageState extends State<RosterPastePage> {
           onChanged: (value) => setState(() => draft = value),
         ),
         const SizedBox(height: 12),
-        Text('${names.length}/10명 입력', style: theme.textTheme.titleMedium),
-        if (names.length > 10) Text('참가자를 ${names.length - 10}명 줄여 주세요.'),
-        if (names.isNotEmpty && names.length < 10)
-          Text('참가자 ${10 - names.length}명을 더 입력해 주세요.'),
-        for (final entry in duplicates)
-          Text('${entry.value.join(', ')}번째 줄의 이름이 같습니다. ${entry.key}',
-              style: TextStyle(color: theme.colorScheme.error)),
+        Semantics(
+          container: true,
+          liveRegion: true,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('${names.length}/10명 입력', style: theme.textTheme.titleMedium),
+              if (names.length > 10) Text('참가자를 ${names.length - 10}명 줄여 주세요.'),
+              if (names.isNotEmpty && names.length < 10)
+                Text('참가자 ${10 - names.length}명을 더 입력해 주세요.'),
+              for (final entry in duplicates)
+                Text('${entry.value.join(', ')}번째 줄의 이름이 같습니다. ${entry.key}',
+                    style: TextStyle(color: theme.colorScheme.error)),
+              if (valid) const Text('명단을 적용할 수 있습니다.'),
+            ],
+          ),
+        ),
         if (valid && widget.fixedTeams)
           for (var team = 0; team < 2; team++) ...[
             const SizedBox(height: 16),
