@@ -13,9 +13,16 @@ class PokemonAssignmentException implements Exception {
 class PokemonAssignmentLogic {
   final Random _random = Random();
 
-  List<Map<String, String>> getFilteredPokemonList(List<String> categories) {
+  List<Map<String, String>> getFilteredPokemonList(
+    List<String> categories, {
+    List<String> excludedPokemon = const [],
+  }) {
     return pokemonList
-        .where((pokemon) => categories.contains(pokemon['category']))
+        .where(
+          (pokemon) =>
+              categories.contains(pokemon['category']) &&
+              !excludedPokemon.contains(pokemon['name']),
+        )
         .toList();
   }
 
@@ -75,10 +82,14 @@ class PokemonAssignmentLogic {
     required List<String> team1,
     required List<String> team2,
     required Map<String, Map<String, String>> playerPokemonMap,
+    List<String> excludedPokemon = const [],
   }) {
     _validateTeams(team1, team2);
 
-    final filteredPokemonList = getFilteredPokemonList(selectedCategories);
+    final filteredPokemonList = getFilteredPokemonList(
+      selectedCategories,
+      excludedPokemon: excludedPokemon,
+    );
     final List<Map<String, String>> team1PokemonList = List.from(
       filteredPokemonList,
     );

@@ -5,6 +5,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:pokemonbattle/data/pokemon_data.dart';
 import 'package:pokemonbattle/main.dart';
 import 'package:pokemonbattle/pokemon/result_page.dart';
+import 'package:pokemonbattle/pokemon/pokemon_category_page.dart';
+import 'package:pokemonbattle/pokemon/pokemon_assignment_page.dart';
 
 void main() {
   final names = List.generate(10, (i) => '참가자${i + 1}');
@@ -197,6 +199,82 @@ void main() {
     await tester.ensureVisible(find.text(names.last));
     expect(find.text(names.last).hitTestable(), findsOneWidget);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('clearing the role filter assigns from all roles',
+      (tester) async {
+    await tester
+        .pumpWidget(MaterialApp(home: PokemonCategoryPage(players: names)));
+    await press(tester, '선택한 역할군에서 랜덤');
+    expect(find.text('선택 없음 · 전체 역할군 사용'), findsOneWidget);
+    await press(tester, '전체 선택');
+    expect(
+        tester
+            .widgetList<FilterChip>(find.byType(FilterChip))
+            .every((chip) => chip.selected),
+        isTrue);
+    await press(tester, '전체 해제');
+    expect(
+        tester
+            .widgetList<FilterChip>(find.byType(FilterChip))
+            .every((chip) => !chip.selected),
+        isTrue);
+    await press(tester, '포켓몬 배정하기');
+    final page = tester
+        .widget<PokemonAssignmentPage>(find.byType(PokemonAssignmentPage));
+    expect(page.selectedCategories, unorderedEquals(pokemonRoles));
+    expect(page.assignOneFromEach, isFalse);
+    await press(tester, '전체 결과 보기');
+    expect(
+        tester.widget<ResultsPage>(find.byType(ResultsPage)).playerPokemonMap,
+        hasLength(10));
+  });
+
+  testWidgets(
+      'exclusion keeps the chosen role and uses only the five remaining candidates',
+      (tester) async {
+    await openHome(tester, const Size(360, 640));
+    await press(tester, '정해진 팀에 포켓몬 배정');
+    await fillNames(tester);
+    await press(tester, '배정 방식 선택');
+    await press(tester, '포켓몬 제외 후 랜덤');
+    await press(tester, '서포트형');
+    await press(tester, '제외할 포켓몬 선택');
+    final candidates = pokemonList
+        .where((p) => p['category'] == '서포트형')
+        .map((p) => p['name']!)
+        .toList();
+    final search = find.byType(TextField);
+    final action = find.byType(FilledButton);
+    Future<void> toggle(String name) async {
+      await tester.ensureVisible(search);
+      await tester.enterText(search, name);
+      await press(tester, name);
+    }
+
+    expect(find.text('제외 없이 랜덤 배정'), findsOneWidget);
+    await toggle(candidates.first);
+    await press(tester, '전체 해제');
+    expect(find.text('제외 0마리 · 배정 가능 ${candidates.length}마리'), findsOneWidget);
+    final excludedCount = candidates.length - 4;
+    for (final name in candidates.take(excludedCount)) {
+      await toggle(name);
+    }
+    expect(tester.widget<FilledButton>(action).enabled, isFalse);
+    final restored = candidates[excludedCount - 1];
+    await press(tester, '제외 목록 ($excludedCount)');
+    final restore = find.byTooltip('$restored 선택 해제');
+    await tester.ensureVisible(restore);
+    await tester.tap(restore);
+    await tester.pumpAndSettle();
+    expect(tester.widget<FilledButton>(action).enabled, isTrue);
+    await press(tester, '제외 목록으로 랜덤 배정');
+    await press(tester, '전체 결과 보기');
+    final summary = tester.widget<ResultsPage>(find.byType(ResultsPage));
+    for (final team in [summary.team1, summary.team2]) {
+      expect(team.map((name) => summary.playerPokemonMap[name]!['name']),
+          unorderedEquals(candidates.skip(excludedCount - 1)));
+    }
   });
 
   test('every registered portrait is in the asset bundle', () async {
