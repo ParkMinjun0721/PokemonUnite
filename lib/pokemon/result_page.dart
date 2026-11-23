@@ -40,32 +40,37 @@ class ResultsPage extends StatelessWidget {
     final color = number == 1
         ? theme.colorScheme.primaryContainer
         : theme.colorScheme.secondaryContainer;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerLowest,
-        border: Border.all(color: theme.colorScheme.outlineVariant),
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        Container(
-          decoration: BoxDecoration(
-              color: color,
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(17))),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: TeamHeading(number),
+    return Semantics(
+      container: true,
+      explicitChildNodes: true,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surfaceContainerLowest,
+          border: Border.all(color: theme.colorScheme.outlineVariant),
+          borderRadius: BorderRadius.circular(18),
         ),
-        for (final name in players)
-          ListTile(
-            leading: playerPokemonMap[name] == null
-                ? null
-                : PokemonPortrait(playerPokemonMap[name]!, size: 44),
-            title: Text(name),
-            subtitle: playerPokemonMap[name] == null
-                ? null
-                : Text(playerPokemonMap[name]!['name']!),
+        child:
+            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          Container(
+            decoration: BoxDecoration(
+                color: color,
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(17))),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: TeamHeading(number),
           ),
-      ]),
+          for (final name in players)
+            ListTile(
+              leading: playerPokemonMap[name] == null
+                  ? null
+                  : PokemonPortrait(playerPokemonMap[name]!, size: 44),
+              title: Text(name),
+              subtitle: playerPokemonMap[name] == null
+                  ? null
+                  : Text(playerPokemonMap[name]!['name']!),
+            ),
+        ]),
+      ),
     );
   }
 

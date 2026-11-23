@@ -1,10 +1,17 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'home.dart';
 import 'theme/app_theme.dart';
 
-void main() => runApp(const ProviderScope(child: MyApp()));
+void main() {
+  if (kIsWeb) {
+    // Keep the accessibility tree available for the lifetime of the web app.
+    WidgetsFlutterBinding.ensureInitialized().ensureSemantics();
+  }
+  runApp(const ProviderScope(child: MyApp()));
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

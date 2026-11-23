@@ -182,6 +182,12 @@ void main() {
         isTrue);
     expect(tester.getTopLeft(find.text('1팀')).dy,
         tester.getTopLeft(find.text('2팀')).dy);
+
+    final readingOrder = tester.semantics
+        .simulatedAccessibilityTraversal()
+        .expand((node) => node.label.split('\n'))
+        .where((text) => text == '1팀' || text == '2팀' || names.contains(text));
+    expect(readingOrder, ['1팀', ...summary.team1, '2팀', ...summary.team2]);
   });
 
   testWidgets(

@@ -64,8 +64,10 @@ class HomePage extends StatelessWidget {
                     page: const PlayerNamePage(),
                   ),
                   const SizedBox(height: 28),
-                  SelectableText('제작 님블  ·  문의 pmjunasd@gmail.com',
-                      style: theme.textTheme.bodySmall),
+                  SelectionArea(
+                    child: Text('제작 님블  ·  문의 pmjunasd@gmail.com',
+                        style: theme.textTheme.bodySmall),
+                  ),
                 ],
               ),
             ),
