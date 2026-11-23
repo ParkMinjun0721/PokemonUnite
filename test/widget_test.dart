@@ -68,6 +68,38 @@ void main() {
   });
 
   testWidgets(
+      'mobile keyboard advances across both teams and preserves the last name when dismissed',
+      (tester) async {
+    await openHome(tester, const Size(375, 667));
+    await press(tester, '정해진 팀에 포켓몬 배정');
+    await tester.tap(find.byKey(const ValueKey('player-0')));
+    tester.view.viewInsets = const FakeViewPadding(bottom: 300);
+    await tester.pumpAndSettle();
+
+    for (var i = 0; i < names.length; i++) {
+      final input = tester.widget<EditableText>(find.descendant(
+          of: find.byKey(ValueKey('player-$i')),
+          matching: find.byType(EditableText)));
+      expect(input.focusNode.hasFocus, isTrue, reason: 'Field ${i + 1}');
+      tester.testTextInput.enterText(names[i]);
+      await tester.pump();
+      await tester.testTextInput.receiveAction(
+          i == names.length - 1 ? TextInputAction.done : TextInputAction.next);
+      await tester.pumpAndSettle();
+    }
+
+    tester.view.resetViewInsets();
+    await tester.pumpAndSettle();
+    await press(tester, '배정 방식 선택');
+    await press(tester, '포켓몬 배정하기');
+    await press(tester, '전체 결과 보기');
+    final result = tester.widget<ResultsPage>(find.byType(ResultsPage));
+    expect(result.team1, names.take(5));
+    expect(result.team2, names.skip(5));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets(
       'fixed teams restore visible names and preferred picks survive searches',
       (tester) async {
     await openHome(tester, const Size(390, 844));
