@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:pokemonbattle/widgets/assignment_error_view.dart';
+import 'package:pokemonbattle/widgets/assignment_summary_box.dart';
+import 'package:pokemonbattle/widgets/labeled_progress_indicator.dart';
 import 'pokemon_assignment_logic.dart';
 import 'result_page.dart';
 
@@ -39,6 +42,41 @@ class _PokemonAssignmentPageState extends State<PokemonAssignmentPage> {
 
   String get _nextButtonLabel =>
       _currentPage == widget.players.length - 1 ? '결과 보기' : '다음';
+
+  IconData get _nextButtonIcon => _currentPage == widget.players.length - 1
+      ? Icons.fact_check
+      : Icons.navigate_next;
+
+  double get _progressValue => (_currentPage + 1) / widget.players.length;
+
+  String get _assignmentSummary {
+    if (widget.preferredPokemon.isNotEmpty) {
+      return '선호 포켓몬 ${widget.preferredPokemon.length}마리 후보에서 배정';
+    }
+
+    if (widget.assignOneFromEach) {
+      return '각 포지션에서 한 마리씩 팀마다 배정';
+    }
+
+    final categorySummary = _categorySummary(widget.selectedCategories);
+    if (widget.excludedPokemon.isNotEmpty) {
+      return '$categorySummary · 제외 ${widget.excludedPokemon.length}마리 적용';
+    }
+
+    return '$categorySummary 후보에서 랜덤 배정';
+  }
+
+  String _categorySummary(List<String> categories) {
+    if (categories.isEmpty) {
+      return '전체 포지션';
+    }
+
+    if (categories.length == 1) {
+      return categories.first;
+    }
+
+    return '포지션 ${categories.length}개';
+  }
 
   @override
   void initState() {
@@ -91,14 +129,17 @@ class _PokemonAssignmentPageState extends State<PokemonAssignmentPage> {
   }
 
   void _rerollPokemon() {
-    setState(_assignPokemon);
+    setState(() {
+      _assignPokemon();
+      _currentPage = 0;
+    });
     _pageController.jumpToPage(0);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('포켓몬 할당')),
+      appBar: AppBar(title: const Text('포켓몬 배정 확인')),
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(
@@ -153,19 +194,32 @@ class _PokemonAssignmentPageState extends State<PokemonAssignmentPage> {
             _progressText,
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
+          const SizedBox(height: 8),
+          LabeledProgressIndicator(
+            value: _progressValue,
+            semanticLabel: '포켓몬 배정 확인 진행률',
+            semanticValue: '${_currentPage + 1}/${widget.players.length}명',
+          ),
+          const SizedBox(height: 12),
+          AssignmentSummaryBox(
+            semanticLabel: '포켓몬 배정 조건',
+            summary: _assignmentSummary,
+            icon: Icons.tune,
+          ),
           const SizedBox(height: 12),
           Row(
             children: [
               Expanded(
                 child: SizedBox(
                   height: 50,
-                  child: OutlinedButton(
+                  child: OutlinedButton.icon(
                     onPressed: _currentPage > 0
                         ? () {
                             _pageController.jumpToPage(_currentPage - 1);
                           }
                         : null,
-                    child: const Text('이전'),
+                    icon: const Icon(Icons.navigate_before),
+                    label: const Text('이전'),
                   ),
                 ),
               ),
@@ -173,11 +227,12 @@ class _PokemonAssignmentPageState extends State<PokemonAssignmentPage> {
               Expanded(
                 child: SizedBox(
                   height: 50,
-                  child: ElevatedButton(
+                  child: ElevatedButton.icon(
                     onPressed: () {
                       _pageController.jumpToPage(_currentPage + 1);
                     },
-                    child: Text(_nextButtonLabel),
+                    icon: Icon(_nextButtonIcon),
+                    label: Text(_nextButtonLabel),
                   ),
                 ),
               ),
@@ -189,37 +244,29 @@ class _PokemonAssignmentPageState extends State<PokemonAssignmentPage> {
   }
 
   Widget _buildErrorBody(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(24.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.error_outline, size: 48, color: Colors.redAccent),
-          const SizedBox(height: 16),
-          Text(
-            assignmentError ?? '포켓몬 배정에 실패했습니다.',
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 12),
-          const Text(
-            '선택한 포켓몬이나 카테고리를 늘린 뒤 다시 시도해주세요.',
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('이전으로'),
-          ),
-        ],
-      ),
+    return AssignmentErrorView(
+      title: assignmentError ?? '포켓몬 배정에 실패했습니다.',
+      message: '선택한 포켓몬이나 카테고리를 늘린 뒤 다시 시도해주세요.',
+      actionLabel: '설정으로 돌아가기',
+      onBack: () => Navigator.pop(context),
     );
+  }
+
+  String _teamLabelForPlayer(String player) {
+    return team1.contains(player) ? '1팀' : '2팀';
+  }
+
+  int _playerNumberForPlayer(String player) {
+    final team = team1.contains(player) ? team1 : team2;
+    return team.indexOf(player) + 1;
   }
 
   Widget buildPlayerPage(String player) {
     final pokemon = playerPokemonMap[player];
     final pokemonName = pokemon?['name'];
     final pokemonImage = pokemon?['image'];
+    final teamLabel = _teamLabelForPlayer(player);
+    final playerNumber = _playerNumberForPlayer(player);
 
     return Padding(
       padding: const EdgeInsets.all(24.0),
@@ -235,6 +282,22 @@ class _PokemonAssignmentPageState extends State<PokemonAssignmentPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      Chip(
+                        avatar: const Icon(Icons.groups, size: 18),
+                        label: Text(teamLabel),
+                      ),
+                      Chip(
+                        avatar: const Icon(Icons.person, size: 18),
+                        label: Text('$playerNumber번 참가자'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
                   Text(
                     player,
                     style: const TextStyle(
@@ -258,7 +321,12 @@ class _PokemonAssignmentPageState extends State<PokemonAssignmentPage> {
                   ),
                   const SizedBox(height: 16),
                   if (pokemonImage != null)
-                    Image.asset(pokemonImage, height: 200, fit: BoxFit.contain),
+                    Image.asset(
+                      pokemonImage,
+                      height: 200,
+                      fit: BoxFit.contain,
+                      semanticLabel: '$pokemonName 이미지',
+                    ),
                 ],
               ),
             ),

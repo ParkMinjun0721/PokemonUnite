@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pokemonbattle/widgets/assignment_error_view.dart';
 import 'team_assignment_logic.dart';
 
 class TeamResultPage extends StatefulWidget {
@@ -12,6 +13,7 @@ class TeamResultPage extends StatefulWidget {
 
 class _TeamResultPageState extends State<TeamResultPage> {
   late final TeamAssignmentLogic logic;
+  final ScrollController _scrollController = ScrollController();
   TeamAssignmentResult? result;
   String? assignmentError;
 
@@ -33,6 +35,7 @@ class _TeamResultPageState extends State<TeamResultPage> {
 
       if (notify) {
         setState(updateResult);
+        _scrollToTop();
       } else {
         updateResult();
       }
@@ -48,6 +51,25 @@ class _TeamResultPageState extends State<TeamResultPage> {
         updateError();
       }
     }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollToTop() {
+    if (_scrollController.hasClients) {
+      _scrollController.jumpTo(0);
+      return;
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.jumpTo(0);
+      }
+    });
   }
 
   @override
@@ -79,23 +101,25 @@ class _TeamResultPageState extends State<TeamResultPage> {
 
     return Column(
       children: [
+        Text(
+          '총 ${assignedResult.team1.length + assignedResult.team2.length}명 배정 완료',
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 12),
         Expanded(
           child: ListView(
+            controller: _scrollController,
             children: [
-              const Text(
-                '1팀:',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-              ),
-              ...assignedResult.team1.map(
-                (player) => ListTile(title: Text(player)),
+              _buildTeamHeader('1팀', assignedResult.team1.length),
+              ...assignedResult.team1.indexed.map(
+                (entry) => _buildPlayerTile('1팀', entry.$2, entry.$1),
               ),
               const SizedBox(height: 20),
-              const Text(
-                '2팀:',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-              ),
-              ...assignedResult.team2.map(
-                (player) => ListTile(title: Text(player)),
+              _buildTeamHeader('2팀', assignedResult.team2.length),
+              ...assignedResult.team2.indexed.map(
+                (entry) => _buildPlayerTile('2팀', entry.$2, entry.$1),
               ),
             ],
           ),
@@ -104,43 +128,64 @@ class _TeamResultPageState extends State<TeamResultPage> {
         SizedBox(
           width: double.infinity,
           height: 50,
-          child: ElevatedButton(
+          child: ElevatedButton.icon(
             onPressed: _assignTeams,
-            child: const Text('다시 배정'),
+            icon: const Icon(Icons.shuffle),
+            label: const Text('다시 배정'),
           ),
         ),
         const SizedBox(height: 12),
         SizedBox(
           width: double.infinity,
           height: 50,
-          child: OutlinedButton(
+          child: OutlinedButton.icon(
             onPressed: () => Navigator.pop(context),
-            child: const Text('입력으로 돌아가기'),
+            icon: const Icon(Icons.edit),
+            label: const Text('입력으로 돌아가기'),
           ),
         ),
       ],
     );
   }
 
+  Widget _buildTeamHeader(String teamName, int memberCount) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: Row(
+        children: [
+          const Icon(Icons.groups, size: 22),
+          const SizedBox(width: 8),
+          Text(
+            '$teamName $memberCount명',
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPlayerTile(String teamName, String player, int index) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: ListTile(
+        dense: true,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        tileColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+        leading: CircleAvatar(
+          radius: 14,
+          child: Text('${index + 1}'),
+        ),
+        title: Text(player),
+        subtitle: Text('$teamName ${index + 1}번 참가자'),
+      ),
+    );
+  }
+
   Widget _buildErrorBody(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Icon(Icons.error_outline, size: 48, color: Colors.redAccent),
-        const SizedBox(height: 16),
-        Text(
-          assignmentError ?? '팀 배정에 실패했습니다.',
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 12),
-        const Text('참가자 이름을 다시 확인해주세요.', textAlign: TextAlign.center),
-        const SizedBox(height: 24),
-        ElevatedButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('이전으로'),
-        ),
-      ],
+    return AssignmentErrorView(
+      title: assignmentError ?? '팀 배정에 실패했습니다.',
+      message: '참가자 이름을 다시 확인해주세요.',
+      onBack: () => Navigator.pop(context),
     );
   }
 }
