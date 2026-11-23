@@ -29,6 +29,12 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  Future<void> backToMode(WidgetTester tester) async {
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+    expect(find.text('배정 방식 선택'), findsOneWidget);
+  }
+
   Future<void> fillNames(WidgetTester tester) async {
     for (var i = 0; i < names.length; i++) {
       final field = find.byKey(ValueKey('player-$i'));
@@ -257,6 +263,14 @@ void main() {
     await tester.enterText(search, pool.first);
     await tester.pump();
     await press(tester, pool.first);
+    await backToMode(tester);
+    await press(tester, '포켓몬 제외 후 랜덤');
+    await press(tester, '제외할 포켓몬 선택');
+    expect(find.text('제외 목록 (0)'), findsOneWidget);
+    await backToMode(tester);
+    await press(tester, '선호 목록에서 랜덤');
+    await press(tester, '선호 포켓몬 선택');
+    expect(find.text('선택 목록 (5)'), findsOneWidget);
     await press(tester, '선택 5마리 · 배정하기');
     await press(tester, '전체 결과 보기');
     final summary = tester.widget<ResultsPage>(find.byType(ResultsPage));
@@ -401,8 +415,26 @@ void main() {
 
     expect(find.text('제외 없이 랜덤 배정'), findsOneWidget);
     await toggle(candidates.first);
-    await press(tester, '전체 해제');
+    await backToMode(tester);
+    await press(tester, '스피드형');
+    await press(tester, '제외할 포켓몬 선택');
+    expect(find.text('제외 목록 (1)'), findsOneWidget);
+    await toggle('앱솔');
+    await backToMode(tester);
+    await press(tester, '스피드형');
+    await press(tester, '제외할 포켓몬 선택');
+    expect(
+        find.text('제외 1마리 · 배정 가능 ${candidates.length - 1}마리'), findsOneWidget);
+    await press(tester, '현재 역할군 제외 해제');
     expect(find.text('제외 0마리 · 배정 가능 ${candidates.length}마리'), findsOneWidget);
+    await backToMode(tester);
+    await press(tester, '스피드형');
+    await press(tester, '제외할 포켓몬 선택');
+    await press(tester, '제외 목록 (1)');
+    expect(find.byTooltip('앱솔 선택 해제'), findsOneWidget);
+    await backToMode(tester);
+    await press(tester, '스피드형');
+    await press(tester, '제외할 포켓몬 선택');
     final excludedCount = candidates.length - 4;
     for (final name in candidates.take(excludedCount)) {
       await toggle(name);

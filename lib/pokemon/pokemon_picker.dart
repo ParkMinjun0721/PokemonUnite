@@ -6,15 +6,15 @@ class PokemonPicker extends StatefulWidget {
     required this.candidates,
     required this.selected,
     required this.onChanged,
-    required this.onClear,
     required this.listLabel,
+    this.clearLabel = '전체 해제',
   });
 
   final List<Map<String, String>> candidates;
   final Set<String> selected;
-  final void Function(String, bool) onChanged;
-  final VoidCallback onClear;
+  final ValueChanged<Set<String>> onChanged;
   final String listLabel;
+  final String clearLabel;
 
   @override
   State<PokemonPicker> createState() => _PokemonPickerState();
@@ -36,9 +36,19 @@ class _PokemonPickerState extends State<PokemonPicker> {
         FilterChip(
           label: Text(pokemon['name']!),
           selected: widget.selected.contains(pokemon['name']),
-          onSelected: (enabled) => widget.onChanged(pokemon['name']!, enabled),
+          onSelected: (enabled) => _select(pokemon['name']!, enabled),
         ),
     ]);
+  }
+
+  void _select(String name, bool enabled) {
+    final names = Set.of(widget.selected);
+    if (enabled) {
+      names.add(name);
+    } else {
+      names.remove(name);
+    }
+    widget.onChanged(names);
   }
 
   @override
@@ -73,7 +83,9 @@ class _PokemonPickerState extends State<PokemonPicker> {
           label: Text('${widget.listLabel} (${widget.selected.length})'),
         ),
         if (widget.selected.isNotEmpty)
-          TextButton(onPressed: widget.onClear, child: const Text('전체 해제')),
+          TextButton(
+              onPressed: () => widget.onChanged({}),
+              child: Text(widget.clearLabel)),
       ]),
       if (showSelected)
         Wrap(spacing: 8, children: [
@@ -81,7 +93,7 @@ class _PokemonPickerState extends State<PokemonPicker> {
             InputChip(
               label: Text(name),
               deleteButtonTooltipMessage: '$name 선택 해제',
-              onDeleted: () => widget.onChanged(name, false),
+              onDeleted: () => _select(name, false),
             ),
         ]),
       if (query.isNotEmpty) ...[

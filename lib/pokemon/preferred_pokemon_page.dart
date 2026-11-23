@@ -5,15 +5,22 @@ import 'pokemon_assignment_page.dart';
 import 'pokemon_picker.dart';
 
 class PreferredPokemonPage extends StatefulWidget {
-  const PreferredPokemonPage({super.key, required this.players});
+  const PreferredPokemonPage({
+    super.key,
+    required this.players,
+    this.initialSelection = const {},
+    this.onSelectionChanged,
+  });
   final List<String> players;
+  final Set<String> initialSelection;
+  final ValueChanged<Set<String>>? onSelectionChanged;
 
   @override
   State<PreferredPokemonPage> createState() => _PreferredPokemonPageState();
 }
 
 class _PreferredPokemonPageState extends State<PreferredPokemonPage> {
-  final selected = <String>{};
+  late Set<String> selected = widget.initialSelection;
 
   @override
   Widget build(BuildContext context) {
@@ -41,14 +48,10 @@ class _PreferredPokemonPageState extends State<PreferredPokemonPage> {
           candidates: pokemonList,
           listLabel: '선택 목록',
           selected: selected,
-          onClear: () => setState(selected.clear),
-          onChanged: (name, enabled) => setState(() {
-            if (enabled) {
-              selected.add(name);
-            } else {
-              selected.remove(name);
-            }
-          }),
+          onChanged: (names) {
+            setState(() => selected = names);
+            widget.onSelectionChanged?.call(names);
+          },
         ),
       ]),
     );

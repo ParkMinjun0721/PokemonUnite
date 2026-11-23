@@ -5,20 +5,30 @@ import 'pokemon_assignment_page.dart';
 import 'pokemon_picker.dart';
 
 class ExcludePokemonPage extends StatefulWidget {
-  const ExcludePokemonPage(
-      {super.key, required this.players, required this.selectedCategories});
+  const ExcludePokemonPage({
+    super.key,
+    required this.players,
+    required this.selectedCategories,
+    this.initialSelection = const {},
+    this.onSelectionChanged,
+  });
 
   final List<String> players;
   final List<String> selectedCategories;
+  final Set<String> initialSelection;
+  final ValueChanged<Set<String>>? onSelectionChanged;
 
   @override
   State<ExcludePokemonPage> createState() => _ExcludePokemonPageState();
 }
 
 class _ExcludePokemonPageState extends State<ExcludePokemonPage> {
-  final excluded = <String>{};
   late final candidates = PokemonAssignmentLogic()
       .getFilteredPokemonList(widget.selectedCategories);
+  late final candidateNames = candidates.map((p) => p['name']!).toSet();
+  late Set<String> excluded =
+      widget.initialSelection.intersection(candidateNames);
+  late final outsideRoles = widget.initialSelection.difference(candidateNames);
 
   @override
   Widget build(BuildContext context) {
@@ -49,15 +59,12 @@ class _ExcludePokemonPageState extends State<ExcludePokemonPage> {
         PokemonPicker(
           candidates: candidates,
           listLabel: '제외 목록',
+          clearLabel: '현재 역할군 제외 해제',
           selected: excluded,
-          onClear: () => setState(excluded.clear),
-          onChanged: (name, enabled) => setState(() {
-            if (enabled) {
-              excluded.add(name);
-            } else {
-              excluded.remove(name);
-            }
-          }),
+          onChanged: (names) {
+            setState(() => excluded = names);
+            widget.onSelectionChanged?.call({...outsideRoles, ...names});
+          },
         ),
       ]),
     );

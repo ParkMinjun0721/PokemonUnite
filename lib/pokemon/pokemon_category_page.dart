@@ -27,13 +27,23 @@ class PokemonCategoryPage extends StatefulWidget {
 class _PokemonCategoryPageState extends State<PokemonCategoryPage> {
   _Mode mode = _Mode.balanced;
   final selected = <String>{};
+  Set<String> preferred = {};
+  Set<String> excluded = {};
 
   void _continue() {
     final roles = selected.isEmpty ? pokemonRoles : selected.toList();
     final page = switch (mode) {
-      _Mode.preferred => PreferredPokemonPage(players: widget.players),
-      _Mode.excluding =>
-        ExcludePokemonPage(players: widget.players, selectedCategories: roles),
+      _Mode.preferred => PreferredPokemonPage(
+          players: widget.players,
+          initialSelection: preferred,
+          onSelectionChanged: (names) => preferred = names,
+        ),
+      _Mode.excluding => ExcludePokemonPage(
+          players: widget.players,
+          selectedCategories: roles,
+          initialSelection: excluded,
+          onSelectionChanged: (names) => excluded = names,
+        ),
       _Mode.balanced || _Mode.roles => PokemonAssignmentPage(
           players: widget.players,
           selectedCategories: mode == _Mode.balanced ? pokemonRoles : roles,
