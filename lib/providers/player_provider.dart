@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final playerProvider = StateNotifierProvider<PlayerNotifier, List<String>>((ref) {
+final playerProvider =
+    StateNotifierProvider<PlayerNotifier, List<String>>((ref) {
   return PlayerNotifier();
 });
 
@@ -9,6 +10,10 @@ class PlayerNotifier extends StateNotifier<List<String>> {
 
   void updatePlayer(int index, String name) {
     state = [...state]..[index] = name;
+  }
+
+  void replacePlayers(List<String> names) {
+    state = List.of(names);
   }
 
   void resetPlayers() {

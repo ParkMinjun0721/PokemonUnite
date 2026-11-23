@@ -38,6 +38,98 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  testWidgets(
+      'roster paste is a cancellable draft and reports source line numbers',
+      (tester) async {
+    await openHome(tester, const Size(375, 667));
+    await press(tester, '10명을 두 팀으로 나누기');
+    await tester.enterText(find.byKey(const ValueKey('player-0')), '기존 이름');
+    for (final cancel in [true, false]) {
+      await press(tester, '명단 붙여넣기');
+      final draft = find.byType(TextField);
+      final apply = find.widgetWithText(FilledButton, '명단 적용');
+      await tester.enterText(draft, names.take(9).join('\n'));
+      await tester.pump();
+      expect(find.text('참가자 1명을 더 입력해 주세요.'), findsOneWidget);
+      expect(tester.widget<FilledButton>(apply).enabled, isFalse);
+      await tester.enterText(draft, [...names, '추가'].join('\n'));
+      await tester.pump();
+      expect(find.text('참가자를 1명 줄여 주세요.'), findsOneWidget);
+      expect(tester.widget<FilledButton>(apply).enabled, isFalse);
+      await tester.enterText(
+          draft, ['  첫 이름 ', '', '첫 이름', ...names.skip(2)].join('\r\n'));
+      await tester.pump();
+      expect(find.text('1, 3번째 줄의 이름이 같습니다. 첫 이름'), findsOneWidget);
+      expect(tester.widget<FilledButton>(apply).enabled, isFalse);
+      await tester.enterText(draft, names.join('\n'));
+      await tester.pump();
+      expect(tester.widget<FilledButton>(apply).enabled, isTrue);
+      if (cancel) {
+        await press(tester, '취소');
+      } else {
+        await tester.tap(find.byType(BackButton));
+        await tester.pumpAndSettle();
+      }
+      expect(
+          tester
+              .widgetList<EditableText>(find.byType(EditableText))
+              .map((w) => w.controller.text),
+          ['기존 이름', ...List.filled(9, '')]);
+    }
+  });
+
+  for (final fixedTeams in [false, true]) {
+    testWidgets(
+        'paste and edit a roster through assignment (fixedTeams=$fixedTeams)',
+        (tester) async {
+      await openHome(tester, const Size(375, 667));
+      await press(tester, fixedTeams ? '정해진 팀에 포켓몬 배정' : '10명을 두 팀으로 나누기');
+      await tester.enterText(find.byKey(const ValueKey('player-0')), '기존 이름');
+      await press(tester, '명단 붙여넣기');
+      tester.view.viewInsets = const FakeViewPadding(bottom: 300);
+      final expected = [...names]..[0] = '두 글자';
+      await tester.enterText(find.byType(TextField),
+          [' ', ...expected.map((name) => '  $name  '), ''].join('\r\n'));
+      await tester.pumpAndSettle();
+      if (fixedTeams) {
+        expect(find.text(expected.take(5).join(' · ')), findsOneWidget);
+        expect(find.text(expected.skip(5).join(' · ')), findsOneWidget);
+      }
+      await press(tester, '명단 적용');
+      tester.view.resetViewInsets();
+      await tester.pumpAndSettle();
+      expect(
+          tester
+              .widgetList<EditableText>(find.byType(EditableText))
+              .map((w) => w.controller.text),
+          expected);
+      expected[6] = '교체된 참가자';
+      final seventh = find.byKey(const ValueKey('player-6'));
+      await tester.ensureVisible(seventh);
+      await tester.enterText(seventh, expected[6]);
+      if (fixedTeams) {
+        await tester.tap(find.byType(BackButton));
+        await tester.pumpAndSettle();
+        await press(tester, '정해진 팀에 포켓몬 배정');
+        expect(
+            tester
+                .widgetList<EditableText>(find.byType(EditableText))
+                .map((w) => w.controller.text),
+            expected);
+        await press(tester, '배정 방식 선택');
+      } else {
+        await press(tester, '팀 나누기');
+        await press(tester, '이 팀으로 포켓몬 배정');
+      }
+      await press(tester, '포켓몬 배정하기');
+      await press(tester, '전체 결과 보기');
+      final result = tester.widget<ResultsPage>(find.byType(ResultsPage));
+      expect([...result.team1, ...result.team2],
+          fixedTeams ? orderedEquals(expected) : unorderedEquals(expected));
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   testWidgets('mobile draw keeps the two teams through reveal and summary',
       (tester) async {
     await openHome(tester, const Size(360, 640));

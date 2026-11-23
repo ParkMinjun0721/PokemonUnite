@@ -13,6 +13,7 @@ class PlayerNamePage extends ConsumerWidget {
       fixedTeams: true,
       players: ref.watch(playerProvider),
       onChanged: ref.read(playerProvider.notifier).updatePlayer,
+      onReplace: ref.read(playerProvider.notifier).replacePlayers,
       onContinue: (names) => Navigator.of(context).push(
         MaterialPageRoute<void>(
             builder: (_) => PokemonCategoryPage(players: names)),

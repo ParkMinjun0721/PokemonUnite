@@ -10,13 +10,14 @@ class TeamAssignmentPage extends StatefulWidget {
 }
 
 class _TeamAssignmentPageState extends State<TeamAssignmentPage> {
-  final players = List.filled(10, '');
+  List<String> players = List.filled(10, '');
 
   @override
   Widget build(BuildContext context) {
     return RosterForm(
       players: players,
       onChanged: (index, value) => setState(() => players[index] = value),
+      onReplace: (names) => setState(() => players = names),
       onContinue: (names) => Navigator.of(context).push(
         MaterialPageRoute<void>(builder: (_) => TeamResultPage(players: names)),
       ),
